@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\elements;
+namespace venveo\bigcommerce\elements;
 
 use Craft;
 use craft\base\Element;
@@ -16,12 +16,12 @@ use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
-use craft\shopify\elements\conditions\products\ProductCondition;
-use craft\shopify\elements\db\ProductQuery;
-use craft\shopify\helpers\Product as ProductHelper;
-use craft\shopify\Plugin;
-use craft\shopify\records\Product as ProductRecord;
-use craft\shopify\web\assets\shopifycp\ShopifyCpAsset;
+use venveo\bigcommerce\elements\conditions\products\ProductCondition;
+use venveo\bigcommerce\elements\db\ProductQuery;
+use venveo\bigcommerce\helpers\Product as ProductHelper;
+use venveo\bigcommerce\Plugin;
+use venveo\bigcommerce\records\Product as ProductRecord;
+use venveo\bigcommerce\web\assets\shopifycp\ShopifyCpAsset;
 use craft\web\CpScreenResponseBehavior;
 use DateTime;
 use Exception;

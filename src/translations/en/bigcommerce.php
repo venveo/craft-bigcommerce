@@ -14,6 +14,6 @@
  * @since     0.0.1
  */
 return [
-    'Shopify plugin loaded' => 'Shopify plugin loaded',
+    'BigCommerce plugin loaded' => 'BigCommerce plugin loaded',
     '{name} option values: {values}' => '{name} option values: {values}',
 ];

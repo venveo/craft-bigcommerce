@@ -1,6 +1,6 @@
 <?php
 
-namespace craft\shopify\elements\conditions\products;
+namespace venveo\bigcommerce\elements\conditions\products;
 
 use craft\elements\conditions\ElementCondition;
 

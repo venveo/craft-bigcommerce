@@ -5,11 +5,11 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\controllers;
+namespace venveo\bigcommerce\controllers;
 
 use Craft;
 use craft\helpers\App;
-use craft\shopify\Plugin;
+use venveo\bigcommerce\Plugin;
 use craft\web\assets\admintable\AdminTableAsset;
 use craft\web\Controller;
 use Shopify\Rest\Admin2022_10\Webhook;

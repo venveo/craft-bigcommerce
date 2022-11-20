@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\db;
+namespace venveo\bigcommerce\db;
 
 /**
  * This class provides public constants for defining Shopify’s database table names. Do not use these in migrations.
@@ -15,6 +15,6 @@ namespace craft\shopify\db;
  */
 abstract class Table
 {
-    public const PRODUCTDATA = '{{%shopify_productdata}}';
-    public const PRODUCTS = '{{%shopify_products}}';
+    public const PRODUCTDATA = '{{%bigcommerce_productdata}}';
+    public const PRODUCTS = '{{%bigcommerce_products}}';
 }

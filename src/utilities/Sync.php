@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\utilities;
+namespace venveo\bigcommerce\utilities;
 
 use Craft;
 use craft\base\Utility;

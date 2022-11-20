@@ -5,14 +5,14 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\controllers;
+namespace venveo\bigcommerce\controllers;
 
 use Craft;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
-use craft\shopify\elements\Product;
-use craft\shopify\helpers\Product as ProductHelper;
-use craft\shopify\Plugin;
+use venveo\bigcommerce\elements\Product;
+use venveo\bigcommerce\helpers\Product as ProductHelper;
+use venveo\bigcommerce\Plugin;
 use yii\web\Response;
 
 /**

@@ -1,13 +1,13 @@
 <?php
 
-namespace craft\shopify\elements\conditions\products;
+namespace venveo\bigcommerce\elements\conditions\products;
 
 use craft\base\conditions\BaseTextConditionRule;
 use craft\base\ElementInterface;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
-use craft\shopify\elements\db\ProductQuery;
-use craft\shopify\elements\Product;
+use venveo\bigcommerce\elements\db\ProductQuery;
+use venveo\bigcommerce\elements\Product;
 
 class VendorConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
 {

@@ -1,12 +1,12 @@
 <?php
 
-namespace craft\shopify\migrations;
+namespace venveo\bigcommerce\migrations;
 
 use craft\db\Migration;
 use craft\db\Table as CraftTable;
 use craft\helpers\MigrationHelper;
-use craft\shopify\db\Table;
-use craft\shopify\elements\Product as ProductElement;
+use venveo\bigcommerce\db\Table;
+use venveo\bigcommerce\elements\Product as ProductElement;
 use ReflectionClass;
 use yii\base\NotSupportedException;
 
@@ -35,7 +35,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::PRODUCTS);
         $this->createTable(Table::PRODUCTS, [
             'id' => $this->integer()->notNull(),
-            'shopifyId' => $this->string(),
+            'bcId' => $this->string(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -44,7 +44,7 @@ class Install extends Migration
 
         $this->archiveTableIfExists(Table::PRODUCTDATA);
         $this->createTable(Table::PRODUCTDATA, [
-            'shopifyId' => $this->string(),
+            'bcId' => $this->string(),
             'title' => $this->text(),
             'bodyHtml' => $this->text(),
             'createdAt' => $this->dateTime(),
@@ -54,7 +54,7 @@ class Install extends Migration
             'productType' => $this->string(),
             'publishedAt' => $this->dateTime(),
             'publishedScope' => $this->string(),
-            'shopifyStatus' => $this->string(),
+            'bcStatus' => $this->string(),
             'tags' => $this->string(),
             'templateSuffix' => $this->string(),
             'updatedAt' => $this->string(),
@@ -64,7 +64,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->string(),
-            'PRIMARY KEY(shopifyId)',
+            'PRIMARY KEY(bcId)',
         ]);
     }
 
@@ -73,7 +73,7 @@ class Install extends Migration
      */
     public function createIndexes(): void
     {
-        $this->createIndex(null, Table::PRODUCTDATA, ['shopifyId'], true);
+        $this->createIndex(null, Table::PRODUCTDATA, ['bcId'], true);
     }
 
     /**
@@ -81,7 +81,7 @@ class Install extends Migration
      */
     public function addForeignKeys(): void
     {
-        $this->addForeignKey(null, Table::PRODUCTS, ['shopifyId'], Table::PRODUCTDATA, ['shopifyId'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::PRODUCTS, ['bcId'], Table::PRODUCTDATA, ['bcId'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTS, ['id'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
     }
 

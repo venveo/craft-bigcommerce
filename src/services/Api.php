@@ -5,13 +5,13 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\services;
+namespace venveo\bigcommerce\services;
 
 use Craft;
 use craft\base\Component;
 use craft\helpers\App;
 use craft\log\MonologTarget;
-use craft\shopify\Plugin;
+use venveo\bigcommerce\Plugin;
 use Shopify\Auth\FileSessionStorage;
 use Shopify\Auth\Session;
 use Shopify\Clients\Rest;

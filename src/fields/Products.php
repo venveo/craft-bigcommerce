@@ -5,11 +5,11 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\fields;
+namespace venveo\bigcommerce\fields;
 
 use Craft;
 use craft\fields\BaseRelationField;
-use craft\shopify\elements\Product;
+use venveo\bigcommerce\elements\Product;
 
 /**
  * Class Shopify Product Field

@@ -5,12 +5,12 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\elements\db;
+namespace venveo\bigcommerce\elements\db;
 
 use craft\db\QueryAbortedException;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
-use craft\shopify\elements\Product;
+use venveo\bigcommerce\elements\Product;
 
 /**
  * ProductQuery represents a SELECT SQL statement for entries in a way that is independent of DBMS.

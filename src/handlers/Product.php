@@ -5,9 +5,9 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\handlers;
+namespace venveo\bigcommerce\handlers;
 
-use craft\shopify\Plugin;
+use venveo\bigcommerce\Plugin;
 use Shopify\Webhooks\Handler;
 use Shopify\Webhooks\Topics;
 

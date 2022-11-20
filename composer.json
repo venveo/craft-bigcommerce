@@ -1,28 +1,26 @@
 {
-  "name": "craftcms/shopify",
-  "description": "Shopify for Craft CMS",
+  "name": "venveo/craft-bigcommerce",
+  "description": "BigCommerce for Craft CMS",
   "type": "craft-plugin",
   "keywords": [
     "cms",
     "craftcms",
-    "shopify"
+    "big-commerce"
   ],
-  "homepage": "https://github.com/craftcms/shopify",
-  "license": "MIT",
+  "homepage": "https://github.com/venveo/craft-bigcommerce",
+  "license": "mit",
   "support": {
-    "email": "support@craftcms.com",
-    "issues": "https://github.com/craftcms/shopify/issues?state=open",
-    "forum": "https://craftcms.stackexchange.com/",
-    "source": "https://github.com/craftcms/shopify",
-    "docs": "https://github.com/craftcms/shopify",
-    "rss": "https://github.com/craftcms/shopify/releases.atom"
+    "email": "development@venveo.com",
+    "issues": "https://github.com/venveo/craft-bigcommerce/issues?state=open",
+    "source": "https://github.com/venveo/craft-bigcommerce",
+    "docs": "https://github.com/venveo/craft-bigcommerce",
+    "rss": "https://github.com/venveo/craft-bigcommerce/releases.atom"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
     "php": "^8.0.2",
-    "craftcms/cms": "^4.3.0",
-    "shopify/shopify-api": "^4.1"
+    "craftcms/cms": "^4.3.0"
   },
   "require-dev": {
     "craftcms/ecs": "dev-main",
@@ -33,15 +31,15 @@
   },
   "autoload": {
     "psr-4": {
-      "craft\\shopify\\": "src/"
+      "venveo\\bigcommerce\\": "src/"
     }
   },
   "extra": {
-    "handle": "shopify",
-    "name": "Shopify",
-    "description": "Synchronize and extend product data from Shopify.",
-    "developer": "Pixel & Tonic",
-    "documentationUrl": "https://github.com/craftcms/shopify"
+    "handle": "bigcommerce",
+    "name": "BigCommerce",
+    "description": "Sync Big Commerce products into your content model",
+    "developer": "Venveo",
+    "documentationUrl": "https://github.com/venveo/craft-bigcommerce"
   },
   "scripts": {
     "check-cs": "ecs check --ansi",

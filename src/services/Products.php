@@ -1,17 +1,12 @@
 <?php
 
-namespace craft\shopify\services;
+namespace venveo\bigcommerce\services;
 
 use Craft;
 use craft\base\Component;
-use craft\helpers\ArrayHelper;
-use craft\shopify\elements\Product as ProductElement;
-use craft\shopify\events\ShopifyProductSyncEvent;
-use craft\shopify\helpers\Metafields as MetafieldsHelper;
-use craft\shopify\Plugin;
-use craft\shopify\records\ProductData as ProductDataRecord;
-use Shopify\Rest\Admin2022_10\Metafield as ShopifyMetafield;
-use Shopify\Rest\Admin2022_10\Product as ShopifyProduct;
+use venveo\bigcommerce\elements\Product;
+use venveo\bigcommerce\Plugin;
+use venveo\bigcommerce\records\ProductData as ProductDataRecord;
 
 /**
  * Shopify Products service.

@@ -5,10 +5,10 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\controllers;
+namespace venveo\bigcommerce\controllers;
 
 use Craft;
-use craft\shopify\Plugin;
+use venveo\bigcommerce\Plugin;
 use craft\web\Controller;
 use Shopify\Webhooks\Registry;
 use yii\web\MethodNotAllowedHttpException;

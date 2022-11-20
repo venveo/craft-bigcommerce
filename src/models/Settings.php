@@ -5,12 +5,12 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\models;
+namespace venveo\bigcommerce\models;
 
 use Craft;
 use craft\base\Model;
 use craft\helpers\UrlHelper;
-use craft\shopify\elements\Product;
+use venveo\bigcommerce\elements\Product;
 
 /**
  * Shopify Settings model.
@@ -76,6 +76,6 @@ class Settings extends Model
      */
     public function getWebhookUrl(): string
     {
-        return UrlHelper::actionUrl('shopify/webhook/handle');
+        return UrlHelper::actionUrl('bigcommerce/webhook/handle');
     }
 }

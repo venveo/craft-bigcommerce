@@ -5,10 +5,10 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\records;
+namespace venveo\bigcommerce\records;
 
 use craft\db\ActiveRecord;
-use craft\shopify\db\Table;
+use venveo\bigcommerce\db\Table;
 use yii\db\ActiveQueryInterface;
 
 /**

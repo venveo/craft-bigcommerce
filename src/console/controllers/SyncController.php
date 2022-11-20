@@ -5,11 +5,11 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\console\controllers;
+namespace venveo\bigcommerce\console\controllers;
 
 use craft\console\Controller;
 use craft\helpers\Console;
-use craft\shopify\Plugin;
+use venveo\bigcommerce\Plugin;
 use yii\console\ExitCode;
 
 /**

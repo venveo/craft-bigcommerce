@@ -5,12 +5,12 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\controllers;
+namespace venveo\bigcommerce\controllers;
 
 use Craft;
-use craft\shopify\elements\Product;
-use craft\shopify\models\Settings;
-use craft\shopify\Plugin;
+use venveo\bigcommerce\elements\Product;
+use venveo\bigcommerce\models\Settings;
+use venveo\bigcommerce\Plugin;
 use craft\web\Controller;
 use craft\web\Response;
 

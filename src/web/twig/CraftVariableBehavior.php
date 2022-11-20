@@ -5,12 +5,12 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\web\twig;
+namespace venveo\bigcommerce\web\twig;
 
 use Craft;
-use craft\shopify\elements\db\ProductQuery;
-use craft\shopify\elements\Product;
-use craft\shopify\Plugin;
+use venveo\bigcommerce\elements\db\ProductQuery;
+use venveo\bigcommerce\elements\Product;
+use venveo\bigcommerce\Plugin;
 use yii\base\Behavior;
 
 /**

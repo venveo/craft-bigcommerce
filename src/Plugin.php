@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2022 Pixel & Tonic, Inc
  */
 
-namespace craft\shopify;
+namespace venveo\bigcommerce;
 
 use Craft;
 use craft\base\Model;
@@ -19,15 +19,14 @@ use craft\helpers\UrlHelper;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Utilities;
-use craft\shopify\elements\Product;
-use craft\shopify\fields\Products as ProductsField;
-use craft\shopify\handlers\Product as ProductHandler;
-use craft\shopify\models\Settings;
-use craft\shopify\services\Api;
-use craft\shopify\services\Products;
-use craft\shopify\services\Store;
-use craft\shopify\utilities\Sync;
-use craft\shopify\web\twig\CraftVariableBehavior;
+use venveo\bigcommerce\elements\Product;
+use venveo\bigcommerce\fields\Products as ProductsField;
+use venveo\bigcommerce\handlers\Product as ProductHandler;
+use venveo\bigcommerce\models\Settings;
+use venveo\bigcommerce\services\Api;
+use venveo\bigcommerce\services\Products;
+use venveo\bigcommerce\utilities\Sync;
+use venveo\bigcommerce\web\twig\CraftVariableBehavior;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
 use Shopify\Webhooks\Registry;
@@ -51,7 +50,7 @@ class Plugin extends BasePlugin
     /**
      * @var string
      */
-    public string $schemaVersion = '4.0.4'; // For some reason the 2.2+ version of the plugin was at 4.0 schema version
+    public string $schemaVersion = '4.0.0';
 
     /**
      * @inheritdoc
@@ -72,7 +71,7 @@ class Plugin extends BasePlugin
             'components' => [
                 'api' => ['class' => Api::class],
                 'products' => ['class' => Products::class],
-                'store' => ['class' => Store::class],
+//                'store' => ['class' => Store::class],
             ],
         ];
     }

@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\web\assets\shopifycp;
+namespace venveo\bigcommerce\web\assets\shopifycp;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
