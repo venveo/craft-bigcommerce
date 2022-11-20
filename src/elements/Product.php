@@ -21,7 +21,7 @@ use venveo\bigcommerce\elements\db\ProductQuery;
 use venveo\bigcommerce\helpers\Product as ProductHelper;
 use venveo\bigcommerce\Plugin;
 use venveo\bigcommerce\records\Product as ProductRecord;
-use venveo\bigcommerce\web\assets\shopifycp\ShopifyCpAsset;
+use venveo\bigcommerce\web\assets\bigcommercecp\BigCommerceCpAsset;
 use craft\web\CpScreenResponseBehavior;
 use DateTime;
 use Exception;
@@ -37,7 +37,7 @@ use yii\web\Response;
  */
 class Product extends Element
 {
-    // Shopify Product Statuses
+    // BigCommerce Product Statuses
     // -------------------------------------------------------------------------
 
     /**
@@ -45,16 +45,16 @@ class Product extends Element
      * @since 3.0
      */
     public const STATUS_LIVE = 'live';
-    public const STATUS_SHOPIFY_DRAFT = 'shopifyDraft';
-    public const STATUS_SHOPIFY_ARCHIVED = 'shopifyArchived';
+    public const STATUS_BC_DRAFT = 'bcDraft';
+    public const STATUS_BC_ARCHIVED = 'bcArchived';
 
     /**
-     * Shopify Statuses
+     * BigCommerce Statuses
      * @since 3.0
      */
-    public const SHOPIFY_STATUS_ACTIVE = 'active';
-    public const SHOPIFY_STATUS_DRAFT = 'draft';
-    public const SHOPIFY_STATUS_ARCHIVED = 'archived';
+    public const BC_STATUS_ACTIVE = 'active';
+    public const BC_STATUS_DRAFT = 'draft';
+    public const BC_STATUS_ARCHIVED = 'archived';
 
     /**
      * @var string
@@ -102,16 +102,16 @@ class Product extends Element
     public ?string $publishedScope = null;
 
     /**
-     * The product ID in the Shopify store
+     * The product ID in the BigCommerce store
      *
      * @var int|null
      */
-    public ?int $shopifyId = null;
+    public ?int $bcId = null;
 
     /**
      * @var string
      */
-    public string $shopifyStatus = 'active';
+    public string $bcStatus = 'active';
 
     /**
      * @var array
@@ -160,9 +160,9 @@ class Product extends Element
     public static function statuses(): array
     {
         return [
-            self::STATUS_LIVE => Craft::t('shopify', 'Live'),
-            self::STATUS_SHOPIFY_DRAFT => ['label' => Craft::t('shopify', 'Draft in Shopify'), 'color' => 'orange'],
-            self::STATUS_SHOPIFY_ARCHIVED => ['label' => Craft::t('shopify', 'Archived in Shopify'), 'color' => 'red'],
+            self::STATUS_LIVE => Craft::t('bigcommerce', 'Live'),
+            self::STATUS_BC_DRAFT => ['label' => Craft::t('bigcommerce', 'Draft in BigCommerce'), 'color' => 'orange'],
+            self::STATUS_BC_ARCHIVED => ['label' => Craft::t('bigcommerce', 'Archived in BigCommerce'), 'color' => 'red'],
             self::STATUS_DISABLED => Craft::t('app', 'Disabled'),
         ];
     }
@@ -175,9 +175,9 @@ class Product extends Element
         $status = parent::getStatus();
 
         if ($status === self::STATUS_ENABLED) {
-            return match ($this->shopifyStatus) {
-                self::SHOPIFY_STATUS_DRAFT => self::STATUS_SHOPIFY_DRAFT,
-                self::SHOPIFY_STATUS_ARCHIVED => self::STATUS_SHOPIFY_ARCHIVED,
+            return match ($this->bcStatus) {
+                self::BC_STATUS_DRAFT => self::STATUS_BC_DRAFT,
+                self::BC_STATUS_ARCHIVED => self::STATUS_BC_ARCHIVED,
                 default => self::STATUS_LIVE,
             };
         }
@@ -301,7 +301,7 @@ class Product extends Element
     }
 
     /**
-     * Gets the first variant which is Shopify's default variant.
+     * Gets the first variant which is BigCommerce's default variant.
      *
      * @return array
      */
@@ -323,7 +323,7 @@ class Product extends Element
      */
     public static function lowerDisplayName(): string
     {
-        return Craft::t('app', 'Shopify product');
+        return Craft::t('app', 'BigCommerce product');
     }
 
     /**
@@ -331,7 +331,7 @@ class Product extends Element
      */
     public static function pluralDisplayName(): string
     {
-        return Craft::t('app', 'Shopify Products');
+        return Craft::t('app', 'BigCommerce Products');
     }
 
     /**
@@ -339,7 +339,7 @@ class Product extends Element
      */
     public static function pluralLowerDisplayName(): string
     {
-        return Craft::t('app', 'Shopify products');
+        return Craft::t('app', 'BigCommerce products');
     }
 
     /**
@@ -347,7 +347,7 @@ class Product extends Element
      */
     public static function refHandle(): ?string
     {
-        return 'shopify-products';
+        return 'bigcommerce-products';
     }
 
     /**
@@ -393,14 +393,14 @@ class Product extends Element
     /**
      * @return string
      */
-    public function getShopifyStatusHtml(): string
+    public function getBigCommerceStatusHtml(): string
     {
-        $color = match ($this->shopifyStatus) {
+        $color = match ($this->bcStatus) {
             'active' => 'green',
             'archived' => 'red',
             default => 'orange', // takes care of draft
         };
-        return "<span class='status $color'></span>" . StringHelper::titleize($this->shopifyStatus);
+        return "<span class='status $color'></span>" . StringHelper::titleize($this->bcStatus);
     }
 
     /**
@@ -408,16 +408,16 @@ class Product extends Element
      */
     public function getPostEditUrl(): ?string
     {
-        return UrlHelper::cpUrl('shopify/products');
+        return UrlHelper::cpUrl('bigcommerce/products');
     }
 
     /**
      *
      * @return string|null
      */
-    public function getShopifyEditUrl(): ?string
+    public function getBigCommerceEditUrl(): ?string
     {
-        return Plugin::getInstance()->getStore()->getUrl("admin/products/{$this->shopifyId}");
+        return Plugin::getInstance()->getStore()->getUrl("admin/products/{$this->bcId}");
     }
 
     /**
@@ -443,8 +443,8 @@ class Product extends Element
     {
         $crumbs = [
             [
-                'label' => Craft::t('shopify', 'Products'),
-                'url' => 'shopify/products',
+                'label' => Craft::t('bigcommerce', 'Products'),
+                'url' => 'bigcommerce/products',
             ],
         ];
 
@@ -497,7 +497,7 @@ class Product extends Element
     protected function uiLabel(): ?string
     {
         if (!isset($this->title) || trim($this->title) === '') {
-            return Craft::t('shopify', 'Untitled product');
+            return Craft::t('bigcommerce', 'Untitled product');
         }
 
         return null;
@@ -553,7 +553,7 @@ class Product extends Element
     public function getSidebarHtml(bool $static): string
     {
         /** @noinspection PhpUnhandledExceptionInspection */
-        Craft::$app->getView()->registerAssetBundle(ShopifyCpAsset::class);
+        Craft::$app->getView()->registerAssetBundle(BigCommerceCpAsset::class);
         $productCard = ProductHelper::renderCardHtml($this);
         return $productCard . parent::getSidebarHtml($static);
     }
@@ -566,7 +566,7 @@ class Product extends Element
         return [
             [
                 'key' => '*',
-                'label' => Craft::t('shopify', 'All products'),
+                'label' => Craft::t('bigcommerce', 'All products'),
                 'criteria' => [
                 ],
                 'defaultSort' => ['id', 'desc'],
@@ -592,7 +592,7 @@ class Product extends Element
             $record->id = $this->id;
         }
 
-        $record->shopifyId = $this->shopifyId;
+        $record->bcId = $this->bcId;
 
         // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e re-saving
         $record->dateUpdated = $this->dateUpdated;
@@ -609,21 +609,21 @@ class Product extends Element
     protected static function defineTableAttributes(): array
     {
         return [
-            'shopifyId' => Craft::t('shopify', 'Shopify ID'),
-            'createdAt' => Craft::t('shopify', 'Created At'),
-            'handle' => Craft::t('shopify', 'Handle'),
+            'bcId' => Craft::t('bigcommerce', 'BigCommerce ID'),
+            'createdAt' => Craft::t('bigcommerce', 'Created At'),
+            'handle' => Craft::t('bigcommerce', 'Handle'),
             // TODO: Support images
-            // 'images' => Craft::t('shopify', 'Images'),
-            'options' => Craft::t('shopify', 'Options'),
-            'productType' => Craft::t('shopify', 'Product Type'),
-            'publishedAt' => Craft::t('shopify', 'Published At'),
-            'publishedScope' => Craft::t('shopify', 'Published Scope'),
-            'shopifyStatus' => Craft::t('shopify', 'Shopify Status'),
-            'tags' => Craft::t('shopify', 'Tags'),
-            'updatedAt' => Craft::t('shopify', 'Updated At'),
-            'variants' => Craft::t('shopify', 'Variants'),
-            'vendor' => Craft::t('shopify', 'Vendor'),
-            'shopifyEdit' => Craft::t('shopify', 'Shopify Edit'),
+            // 'images' => Craft::t('bigcommerce', 'Images'),
+            'options' => Craft::t('bigcommerce', 'Options'),
+            'productType' => Craft::t('bigcommerce', 'Product Type'),
+            'publishedAt' => Craft::t('bigcommerce', 'Published At'),
+            'publishedScope' => Craft::t('bigcommerce', 'Published Scope'),
+            'bcStatus' => Craft::t('bigcommerce', 'BigCommerce Status'),
+            'tags' => Craft::t('bigcommerce', 'Tags'),
+            'updatedAt' => Craft::t('bigcommerce', 'Updated At'),
+            'variants' => Craft::t('bigcommerce', 'Variants'),
+            'vendor' => Craft::t('bigcommerce', 'Vendor'),
+            'bigcommerceEdit' => Craft::t('bigcommerce', 'BigCommerce Edit'),
         ];
     }
 
@@ -633,8 +633,8 @@ class Product extends Element
     protected static function defineDefaultTableAttributes(string $source): array
     {
         return [
-            'shopifyId',
-            'shopifyStatus',
+            'bcId',
+            'bcStatus',
             'handle',
             'productType',
         ];
@@ -649,19 +649,19 @@ class Product extends Element
 
         $sortOptions['title'] = [
             'label' => Craft::t('app', 'Title'),
-            'orderBy' => 'shopify_productdata.title',
+            'orderBy' => 'bigcommerce_productdata.title',
             'defaultDir' => SORT_DESC,
         ];
 
-        $sortOptions['shopifyId'] = [
-            'label' => Craft::t('shopify', 'Shopify ID'),
-            'orderBy' => 'shopify_productdata.shopifyId',
+        $sortOptions['bcId'] = [
+            'label' => Craft::t('bigcommerce', 'BigCommerce ID'),
+            'orderBy' => 'bigcommerce_productdata.bcId',
             'defaultDir' => SORT_DESC,
         ];
 
-        $sortOptions['shopifyStatus'] = [
-            'label' => Craft::t('shopify', 'Shopify Status'),
-            'orderBy' => 'shopify_productdata.shopifyStatus',
+        $sortOptions['bcStatus'] = [
+            'label' => Craft::t('bigcommerce', 'BigCommerce Status'),
+            'orderBy' => 'bigcommerce_productdata.bcStatus',
             'defaultDir' => SORT_DESC,
         ];
 
@@ -676,11 +676,11 @@ class Product extends Element
     protected function tableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
-            case 'shopifyEdit':
-                return HtmlHelper::a('', $this->getShopifyEditUrl(), ['target' => '_blank', 'data' => ['icon' => 'external']]);
-            case 'shopifyStatus':
-                return $this->getShopifyStatusHtml();
-            case 'shopifyId':
+            case 'bigcommerceEdit':
+                return HtmlHelper::a('', $this->getBigCommerceEditUrl(), ['target' => '_blank', 'data' => ['icon' => 'external']]);
+            case 'bcStatus':
+                return $this->getBigCommerceStatusHtml();
+            case 'bcId':
                 return $this->$attribute;
             case 'options':
                 return collect($this->getOptions())->map(function ($option) {
@@ -709,14 +709,14 @@ class Product extends Element
      */
     protected function cpEditUrl(): ?string
     {
-        $path = sprintf('shopify/products/%s', $this->getCanonicalId());
+        $path = sprintf('bigcommerce/products/%s', $this->getCanonicalId());
         return UrlHelper::cpUrl($path);
     }
 
     /**
      * @return string
      */
-    public function getShopifyUrl(array $params = []): string
+    public function getBigCommerceUrl(array $params = []): string
     {
         return Plugin::getInstance()->getStore()->getUrl("products/{$this->handle}", $params);
     }
@@ -724,11 +724,11 @@ class Product extends Element
     /**
      * @return string
      * @see self::getLink()
-     * @see self::getShopifyUrl()
+     * @see self::getBigCommerceUrl()
      */
-    public function getShopifyLink(?string $text = null, array $attributes = []): string
+    public function getBigCommerceLink(?string $text = null, array $attributes = []): string
     {
-        $link = HtmlHelper::a($text ?: $this->title, $this->getShopifyUrl(), $attributes);
+        $link = HtmlHelper::a($text ?: $this->title, $this->getBigCommerceUrl(), $attributes);
         return Template::raw($link);
     }
 
@@ -761,7 +761,7 @@ class Product extends Element
      */
     public function canDelete(User $user): bool
     {
-        // We normally cant delete shopify elements, but we can if we are in a draft state.
+        // We normally cant delete bigcommerce elements, but we can if we are in a draft state.
         if ($this->getIsDraft()) {
             return true;
         }
@@ -784,22 +784,22 @@ class Product extends Element
     {
         $labels = parent::attributeLabels();
 
-        $labels['shopifyId'] = Craft::t('shopify', 'Shopify ID');
-        $labels['bodyHtml'] = Craft::t('shopify', 'Body HTML');
-        $labels['createdAt'] = Craft::t('shopify', 'Created at');
-        $labels['handle'] = Craft::t('shopify', 'Handle');
-        $labels['images'] = Craft::t('shopify', 'Images');
-        $labels['options'] = Craft::t('shopify', 'Options');
-        $labels['productType'] = Craft::t('shopify', 'Product Type');
-        $labels['publishedAt'] = Craft::t('shopify', 'Published at');
-        $labels['publishedScope'] = Craft::t('shopify', 'Published Scope');
-        $labels['tags'] = Craft::t('shopify', 'Tags');
-        $labels['shopifyStatus'] = Craft::t('shopify', 'Status');
-        $labels['templateSuffix'] = Craft::t('shopify', 'Template Suffix');
-        $labels['updatedAt'] = Craft::t('shopify', 'Updated at');
-        $labels['variants'] = Craft::t('shopify', 'Variants');
-        $labels['vendor'] = Craft::t('shopify', 'Vendor');
-        $labels['metaFields'] = Craft::t('shopify', 'Meta Fields');
+        $labels['bcId'] = Craft::t('bigcommerce', 'BigCommerce ID');
+        $labels['bodyHtml'] = Craft::t('bigcommerce', 'Body HTML');
+        $labels['createdAt'] = Craft::t('bigcommerce', 'Created at');
+        $labels['handle'] = Craft::t('bigcommerce', 'Handle');
+        $labels['images'] = Craft::t('bigcommerce', 'Images');
+        $labels['options'] = Craft::t('bigcommerce', 'Options');
+        $labels['productType'] = Craft::t('bigcommerce', 'Product Type');
+        $labels['publishedAt'] = Craft::t('bigcommerce', 'Published at');
+        $labels['publishedScope'] = Craft::t('bigcommerce', 'Published Scope');
+        $labels['tags'] = Craft::t('bigcommerce', 'Tags');
+        $labels['bcStatus'] = Craft::t('bigcommerce', 'Status');
+        $labels['templateSuffix'] = Craft::t('bigcommerce', 'Template Suffix');
+        $labels['updatedAt'] = Craft::t('bigcommerce', 'Updated at');
+        $labels['variants'] = Craft::t('bigcommerce', 'Variants');
+        $labels['vendor'] = Craft::t('bigcommerce', 'Vendor');
+        $labels['metaFields'] = Craft::t('bigcommerce', 'Meta Fields');
 
         return $labels;
     }

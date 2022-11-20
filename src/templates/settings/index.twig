@@ -1,36 +1,36 @@
-{% extends "shopify/settings/_layout" %}
+{% extends "bigcommerce/settings/_layout" %}
 {% import '_includes/forms.twig' as forms %}
 {% set fullPageForm = true %}
 
-{% do view.registerTranslations('shopify', [
+{% do view.registerTranslations('bigcommerce', [
     "Topic",
     "Address"
 ]) %}
 
 {% block content %}
     {% set headlessMode = craft.app.config.general.headlessMode %}
-    {{ actionInput('shopify/settings/save-settings') }}
-    {{ redirectInput('shopify/settings') }}
+    {{ actionInput('bigcommerce/settings/save-settings') }}
+    {{ redirectInput('bigcommerce/settings') }}
 
     <div id="products" class="hidden">
 
         {{ forms.editableTableField({
-            label: "Routing Settings"|t('shopify'),
-            instructions: "Configure the product’s front-end routing settings."|t('shopify'),
+            label: "Routing Settings"|t('bigcommerce'),
+            instructions: "Configure the product’s front-end routing settings."|t('bigcommerce'),
             id: 'routing',
             name: 'settings',
             cols: {
                 uriFormat: {
                     type: 'singleline',
-                    heading: "Product URI Format"|t('shopify'),
-                    info: "What product URIs should look like."|t('shopify'),
-                    placeholder: "Leave blank if products don’t have URLs"|t('shopify'),
+                    heading: "Product URI Format"|t('bigcommerce'),
+                    info: "What product URIs should look like."|t('bigcommerce'),
+                    placeholder: "Leave blank if products don’t have URLs"|t('bigcommerce'),
                     code: true
                 },
                 template: not headlessMode ? {
                     type: 'template',
                     heading: "Template"|t('app'),
-                    info: "Which template should be loaded when a product’s URL is requested."|t('shopify'),
+                    info: "Which template should be loaded when a product’s URL is requested."|t('bigcommerce'),
                     code: true
                 },
             }|filter,
@@ -60,7 +60,7 @@
     <div id="api">
         {{ forms.autosuggestField({
             first: true,
-            label: 'API Key'|t('shopify'),
+            label: 'API Key'|t('bigcommerce'),
             id: 'apiKey',
             name: 'settings[apiKey]',
             value: settings.apiKey,
@@ -70,7 +70,7 @@
         }) }}
 
         {{ forms.autosuggestField({
-            label: 'API Secret Key'|t('shopify'),
+            label: 'API Secret Key'|t('bigcommerce'),
             id: 'apiSecretKey',
             name: 'settings[apiSecretKey]',
             value: settings.apiSecretKey,
@@ -79,7 +79,7 @@
         }) }}
 
         {{ forms.autosuggestField({
-            label: 'Access Token'|t('shopify'),
+            label: 'Access Token'|t('bigcommerce'),
             id: 'accessToken',
             name: 'settings[accessToken]',
             value: settings.accessToken,
@@ -88,8 +88,8 @@
         }) }}
 
         {{ forms.autosuggestField({
-            label: 'Host Name'|t('shopify'),
-            instructions: 'The Shopify store hostname.'|t('shopify'),
+            label: 'Host Name'|t('bigcommerce'),
+            instructions: 'The BigCommerce store hostname.'|t('bigcommerce'),
             id: 'hostName',
             name: 'settings[hostName]',
             value: settings.hostName,

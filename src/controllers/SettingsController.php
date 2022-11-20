@@ -35,16 +35,16 @@ class SettingsController extends Controller
 
         $tabs = [
             'apiConnection' => [
-                'label' => Craft::t('shopify', 'API Connection'),
+                'label' => Craft::t('bigcommerce', 'API Connection'),
                 'url' => '#api',
             ],
             'products' => [
-                'label' => Craft::t('shopify', 'Products'),
+                'label' => Craft::t('bigcommerce', 'Products'),
                 'url' => '#products',
             ],
         ];
 
-        return $this->renderTemplate('shopify/settings/index', compact('settings', 'tabs'));
+        return $this->renderTemplate('bigcommerce/settings/index', compact('settings', 'tabs'));
     }
 
     /**
@@ -75,14 +75,14 @@ class SettingsController extends Controller
         if (!$settingsSuccess) {
             return $this->asModelFailure(
                 $pluginSettings,
-                Craft::t('shopify', 'Couldn’t save settings.'),
+                Craft::t('bigcommerce', 'Couldn’t save settings.'),
                 'settings',
             );
         }
 
         return $this->asModelSuccess(
             $pluginSettings,
-            Craft::t('shopify', 'Settings saved.'),
+            Craft::t('bigcommerce', 'Settings saved.'),
             'settings',
         );
     }

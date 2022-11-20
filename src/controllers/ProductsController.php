@@ -16,7 +16,7 @@ use venveo\bigcommerce\Plugin;
 use yii\web\Response;
 
 /**
- * The ProductsController handles listing and showing Shopify products elements.
+ * The ProductsController handles listing and showing BigCommerce products elements.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
@@ -35,7 +35,7 @@ class ProductsController extends \craft\web\Controller
             $newProductUrl = UrlHelper::url('https://' . App::parseEnv($baseUrl) . '/admin/products/new');
         }
 
-        return $this->renderTemplate('shopify/products/_index', compact('newProductUrl'));
+        return $this->renderTemplate('bigcommerce/products/_index', compact('newProductUrl'));
     }
 
     /**
@@ -46,7 +46,7 @@ class ProductsController extends \craft\web\Controller
     public function actionSync(): Response
     {
         Plugin::getInstance()->getProducts()->syncAllProducts();
-        return $this->asSuccess(Craft::t('shopify','Products successfully synced'));
+        return $this->asSuccess(Craft::t('bigcommerce','Products successfully synced'));
     }
 
     /**

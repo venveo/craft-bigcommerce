@@ -1,15 +1,15 @@
 <?php
 
-namespace craft\shopify\services;
+namespace venveo\bigcommerce\services;
 
 use craft\base\Component;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
-use craft\shopify\Plugin;
+use venveo\bigcommerce\Plugin;
 use yii\base\InvalidConfigException;
 
 /**
- * Shopify Store service.
+ * BigCommerce Store service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
@@ -17,7 +17,7 @@ use yii\base\InvalidConfigException;
 class Store extends Component
 {
     /**
-     * Creates a URL to the external Shopify store
+     * Creates a URL to the external BigCommerce store
      *
      * @param string $path
      * @param array $params
@@ -30,7 +30,7 @@ class Store extends Component
         $host = App::parseEnv($settings->hostName);
 
         if (!$host) {
-            throw new InvalidConfigException('Shopify URLs cannot be generated without a hostname configured.');
+            throw new InvalidConfigException('BigCommerce URLs cannot be generated without a hostname configured.');
         }
 
         return UrlHelper::url("https://{$host}/{$path}", $params);

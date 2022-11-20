@@ -11,7 +11,7 @@ use Craft;
 use craft\base\Utility;
 
 /**
- * Sync class offers the Shopify Sync utilities.
+ * Sync class offers the BigCommerce Sync utilities.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0.0
@@ -23,7 +23,7 @@ class Sync extends Utility
      */
     public static function displayName(): string
     {
-        return Craft::t('app', 'Shopify Sync');
+        return Craft::t('app', 'BigCommerce Sync');
     }
 
     /**
@@ -31,7 +31,7 @@ class Sync extends Utility
      */
     public static function id(): string
     {
-        return 'shopify-sync';
+        return 'bigcommerce-sync';
     }
 
     /**
@@ -39,7 +39,7 @@ class Sync extends Utility
      */
     public static function iconPath(): ?string
     {
-        return Craft::getAlias('@vendor') . '/craftcms/shopify/src/icon-mask.svg';
+        return Craft::getAlias('@vendor') . '/craftcms/bigcommerce/src/icon-mask.svg';
     }
 
     /**
@@ -49,6 +49,6 @@ class Sync extends Utility
     {
         $view = Craft::$app->getView();
 
-        return $view->renderTemplate('shopify/utilities/_sync.twig');
+        return $view->renderTemplate('bigcommerce/utilities/_sync.twig');
     }
 }

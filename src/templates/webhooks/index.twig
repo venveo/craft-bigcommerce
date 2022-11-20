@@ -2,21 +2,21 @@
 {% extends "_layouts/cp" %}
 {% set selectedSubnavItem = 'webhooks' %}
 
-{% set title = "Webhooks"|t('shopify') %}
+{% set title = "Webhooks"|t('bigcommerce') %}
 
 {% set navItems = {} %}
 
 {% block content %}
 
-    <h3>{{ "Webhook Management"|t('shopify') }}</h3>
+    <h3>{{ "Webhook Management"|t('bigcommerce') }}</h3>
 
     <div class="{{ containsAllWebhooks ? 'hidden' : '' }}">
-        <p>{{ "Create the webhooks for the current environment."|t('shopify') }}</p>
+        <p>{{ "Create the webhooks for the current environment."|t('bigcommerce') }}</p>
         <form method="POST">
-            {{ actionInput('shopify/webhooks/create') }}
-            {{ redirectInput('shopify/webhooks') }}
+            {{ actionInput('bigcommerce/webhooks/create') }}
+            {{ redirectInput('bigcommerce/webhooks') }}
             {{ csrfInput() }}
-            <button class="btn primary" type="submit">{{ "Create"|t('shopify') }}</button>
+            <button class="btn primary" type="submit">{{ "Create"|t('bigcommerce') }}</button>
         </form>
     </div>
 
@@ -37,19 +37,19 @@
 
     {% js %}
         var columns = [
-        { name: '__slot:title', title: '{{ 'Topic'|t('shopify') }}' },
-        { name: 'address', title: '{{ 'URL'|t('shopify') }}' }
+        { name: '__slot:title', title: '{{ 'Topic'|t('bigcommerce') }}' },
+        { name: 'address', title: '{{ 'URL'|t('bigcommerce') }}' }
         ];
 
         new Craft.VueAdminTable({
         fullPane: false,
         columns: columns,
         container: '#webhooks-container',
-        deleteAction: 'shopify/webhooks/delete',
-        deleteConfirmationMessage: Craft.t('shopify', "Are you sure you want to delete this webhook?"),
-        deleteFailMessage: Craft.t('shopify', "Webhook could not be deleted"),
-        deleteSuccessMessage: Craft.t('shopify', "Webhook deleted"),
-        emptyMessage: Craft.t('shopify', 'No webhooks exist yet.'),
+        deleteAction: 'bigcommerce/webhooks/delete',
+        deleteConfirmationMessage: Craft.t('bigcommerce', "Are you sure you want to delete this webhook?"),
+        deleteFailMessage: Craft.t('bigcommerce', "Webhook could not be deleted"),
+        deleteSuccessMessage: Craft.t('bigcommerce', "Webhook deleted"),
+        emptyMessage: Craft.t('bigcommerce', 'No webhooks exist yet.'),
         tableData: {{ tableData|json_encode|raw }},
         deleteCallback: function(){
         window.location.reload(); // We need to reload to get the create button showing again

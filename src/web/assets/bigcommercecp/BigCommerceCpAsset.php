@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace venveo\bigcommerce\web\assets\shopifycp;
+namespace venveo\bigcommerce\web\assets\bigcommercecp;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
@@ -19,7 +19,7 @@ use yii\web\JqueryAsset;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShopifyCpAsset extends AssetBundle
+class BigCommerceCpAsset extends AssetBundle
 {
     /**
      * @inheritdoc
@@ -34,8 +34,8 @@ class ShopifyCpAsset extends AssetBundle
             HtmxAsset::class,
         ];
 
-        $this->css[] = 'css/shopifycp.css';
-        $this->js[] = 'shopifycp.js';
+        $this->css[] = 'css/bigcommercecp.css';
+        $this->js[] = 'bigcommercecp.js';
 
         parent::init();
     }
@@ -48,7 +48,7 @@ class ShopifyCpAsset extends AssetBundle
         parent::registerAssetFiles($view);
 
         if ($view instanceof View) {
-            $view->registerTranslations('shopify', [
+            $view->registerTranslations('bigcommerce', [
             ]);
         }
     }

@@ -16,7 +16,7 @@ class VendorConditionRule extends BaseTextConditionRule implements ElementCondit
      */
     public function getLabel(): string
     {
-        return \Craft::t('shopify', 'Vendor');
+        return \Craft::t('bigcommerce', 'Vendor');
     }
 
     /**

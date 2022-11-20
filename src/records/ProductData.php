@@ -17,7 +17,7 @@ use yii\db\ActiveQueryInterface;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
  *
- * @property int $shopifyId
+ * @property int $bcId
  * @property string $title
  * @property string $bodyHtml
  * @property string $createdAt
@@ -27,7 +27,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $productType
  * @property string $publishedAt
  * @property string $publishedScope
- * @property string $shopifyStatus
+ * @property string $bcStatus
  * @property string $tags
  * @property string $templateSuffix
  * @property string $updatedAt
@@ -48,6 +48,6 @@ class ProductData extends ActiveRecord
 
     public function getData(): ActiveQueryInterface
     {
-        return $this->hasOne(Product::class, ['id' => 'shopifyId']);
+        return $this->hasOne(Product::class, ['id' => 'bcId']);
     }
 }

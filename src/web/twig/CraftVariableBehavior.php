@@ -24,13 +24,13 @@ class CraftVariableBehavior extends Behavior
     /**
      * @var Plugin
      */
-    public Plugin $shopify;
+    public Plugin $bigcommerce;
 
     public function init(): void
     {
         parent::init();
 
-        $this->shopify = Plugin::getInstance();
+        $this->bigcommerce = Plugin::getInstance();
     }
 
     /**
@@ -39,7 +39,7 @@ class CraftVariableBehavior extends Behavior
      * @param array $criteria
      * @return ProductQuery
      */
-    public function shopifyProducts(array $criteria = []): ProductQuery
+    public function bigcommerceProducts(array $criteria = []): ProductQuery
     {
         $query = Product::find();
         Craft::configure($query, $criteria);

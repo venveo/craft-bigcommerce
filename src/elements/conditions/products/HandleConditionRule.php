@@ -16,7 +16,7 @@ class HandleConditionRule extends BaseTextConditionRule implements ElementCondit
      */
     public function getLabel(): string
     {
-        return \Craft::t('shopify', 'Handle');
+        return \Craft::t('bigcommerce', 'Handle');
     }
 
     /**

@@ -12,7 +12,7 @@ use craft\fields\BaseRelationField;
 use venveo\bigcommerce\elements\Product;
 
 /**
- * Class Shopify Product Field
+ * Class BigCommerce Product Field
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
@@ -26,7 +26,7 @@ class Products extends BaseRelationField
      */
     public static function displayName(): string
     {
-        return Craft::t('shopify', 'Shopify Products');
+        return Craft::t('bigcommerce', 'BigCommerce Products');
     }
 
     /**
@@ -34,7 +34,7 @@ class Products extends BaseRelationField
      */
     public static function defaultSelectionLabel(): string
     {
-        return Craft::t('shopify', 'Add a product');
+        return Craft::t('bigcommerce', 'Add a product');
     }
 
     /**

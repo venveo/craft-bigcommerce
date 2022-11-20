@@ -18,7 +18,7 @@ use venveo\bigcommerce\elements\Product as ProductElement;
 use venveo\bigcommerce\records\ProductData;
 
 /**
- * Shopify Product Helper.
+ * BigCommerce Product Helper.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
@@ -45,11 +45,11 @@ class Product
                 'icon' => 'external',
             ],
         ]);
-        $cardHeader = Html::a($title . $subTitle . $externalLink, $product->getShopifyEditUrl(), [
+        $cardHeader = Html::a($title . $subTitle . $externalLink, $product->getBigCommerceEditUrl(), [
             'style' => '',
             'class' => 'pec-header',
             'target' => '_blank',
-            'title' => Craft::t('shopify', 'Open in Shopify'),
+            'title' => Craft::t('bigcommerce', 'Open in BigCommerce'),
         ]);
 
         $hr = Html::tag('hr', '', [
@@ -58,15 +58,15 @@ class Product
 
         $meta = [];
 
-        $meta[Craft::t('shopify', 'Handle')] = $product->handle;
-        $meta[Craft::t('shopify', 'Status')] = $product->getShopifyStatusHtml();
+        $meta[Craft::t('bigcommerce', 'Handle')] = $product->handle;
+        $meta[Craft::t('bigcommerce', 'Status')] = $product->getBigCommerceStatusHtml();
 
         // Options
         if (count($product->getOptions()) > 0) {
-            $meta[Craft::t('shopify', 'Options')] = collect($product->options)
+            $meta[Craft::t('bigcommerce', 'Options')] = collect($product->options)
                 ->map(function($option) {
                     return Html::tag('span', $option['name'], [
-                        'title' => Craft::t('shopify', '{name} option values: {values}', [
+                        'title' => Craft::t('bigcommerce', '{name} option values: {values}', [
                             'name' => $option['name'],
                             'values' => join(', ', $option['values']),
                         ]),
@@ -85,21 +85,21 @@ class Product
                 })
                 ->join(' ');
 
-            $meta[Craft::t('shopify', 'Tags')] = Html::tag('div', $tags);
+            $meta[Craft::t('bigcommerce', 'Tags')] = Html::tag('div', $tags);
         }
 
         // Variants
         if (count($product->getVariants()) > 0) {
-            $meta[Craft::t('shopify', 'Variants')] = collect($product->getVariants())
+            $meta[Craft::t('bigcommerce', 'Variants')] = collect($product->getVariants())
                 ->pluck('title')
                 ->join(', ');
         }
 
-        $meta[Craft::t('shopify', 'Shopify ID')] = Html::tag('code', $product->shopifyId);
+        $meta[Craft::t('bigcommerce', 'Shopify ID')] = Html::tag('code', $product->bcId);
 
-        $meta[Craft::t('shopify', 'Created at')] = $formatter->asDatetime($product->createdAt, Formatter::FORMAT_WIDTH_SHORT);
-        $meta[Craft::t('shopify', 'Published at')] = $formatter->asDatetime($product->publishedAt, Formatter::FORMAT_WIDTH_SHORT);
-        $meta[Craft::t('shopify', 'Updated at')] = $formatter->asDatetime($product->updatedAt, Formatter::FORMAT_WIDTH_SHORT);
+        $meta[Craft::t('bigcommerce', 'Created at')] = $formatter->asDatetime($product->createdAt, Formatter::FORMAT_WIDTH_SHORT);
+        $meta[Craft::t('bigcommerce', 'Published at')] = $formatter->asDatetime($product->publishedAt, Formatter::FORMAT_WIDTH_SHORT);
+        $meta[Craft::t('bigcommerce', 'Updated at')] = $formatter->asDatetime($product->updatedAt, Formatter::FORMAT_WIDTH_SHORT);
 
         $metadataHtml = Cp::metadataHtml($meta);
 
@@ -112,7 +112,7 @@ class Product
 
         // This is the date updated in the database which represents the last time it was updated from a Shopify webhook or sync.
         /** @var ProductData $productData */
-        $productData = ProductData::find()->where(['shopifyId' => $product->shopifyId])->one();
+        $productData = ProductData::find()->where(['bcId' => $product->bcId])->one();
         $dateUpdated = DateTimeHelper::toDateTime($productData->dateUpdated);
         $now = new \DateTime();
         $diff = $now->diff($dateUpdated);
@@ -125,7 +125,7 @@ class Product
             'class' => 'meta proxy-element-card',
             'id' => 'pec-' . $product->id,
             'hx' => [
-                'get' => UrlHelper::actionUrl('shopify/products/render-card-html', [
+                'get' => UrlHelper::actionUrl('bigcommerce/products/render-card-html', [
                     'id' => $product->id,
                 ]),
                 'swap' => 'outerHTML',

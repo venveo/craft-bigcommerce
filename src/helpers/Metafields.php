@@ -5,16 +5,16 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\shopify\helpers;
+namespace venveo\bigcommerce\helpers;
 
 use craft\helpers\Json;
-use Shopify\Rest\Admin2022_10\Metafield as ShopifyMetafield;
+//use Shopify\Rest\Admin2022_10\Metafield as ShopifyMetafield;
 
 class Metafields
 {
     /**
      * @var array Data types that should be expanded into an array.
-     * @see https://shopify.dev/apps/metafields/types
+     * @see https://bigcommerce.dev/apps/metafields/types
      */
     public const JSON_TYPES = [
         'dimension',
@@ -26,7 +26,7 @@ class Metafields
 
     /**
      * @var string Prefix given to metafield types that are configured to accept multiple values and will be encoded as JSON.
-     * @see https://shopify.dev/apps/metafields/types#list-types
+     * @see https://bigcommerce.dev/apps/metafields/types#list-types
      */
     public const LIST_PREFIX = 'list';
 

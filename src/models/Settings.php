@@ -41,12 +41,12 @@ class Settings extends Model
     public function attributeLabels(): array
     {
         return [
-            'apiKey' => Craft::t('shopify', 'Shopify API Key'),
-            'apiSecretKey' => Craft::t('shopify', 'Shopify API Secret Key'),
-            'accessToken' => Craft::t('shopify', 'Shopify Access Token'),
-            'hostName' => Craft::t('shopify', 'Shopify Host Name'),
-            'uriFormat' => Craft::t('shopify', 'Product URI format'),
-            'template' => Craft::t('shopify', 'Product Template'),
+            'apiKey' => Craft::t('bigcommerce', 'BigCommerce API Key'),
+            'apiSecretKey' => Craft::t('bigcommerce', 'BigCommerce API Secret Key'),
+            'accessToken' => Craft::t('bigcommerce', 'BigCommerce Access Token'),
+            'hostName' => Craft::t('bigcommerce', 'BigCommerce Host Name'),
+            'uriFormat' => Craft::t('bigcommerce', 'Product URI format'),
+            'template' => Craft::t('bigcommerce', 'Product Template'),
         ];
     }
 

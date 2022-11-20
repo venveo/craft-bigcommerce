@@ -1,8 +1,8 @@
 <?php
 /**
- * Shopify plugin for Craft CMS 4.x
+ * BigCommerce plugin for Craft CMS 4.x
  *
- * Shopify for Craft CMS
+ * BigCommerce for Craft CMS
  *
  * @link      https://craftcms.com
  * @copyright Copyright (c) 2022 Pixel & Tonic, Inc
@@ -29,16 +29,13 @@ use venveo\bigcommerce\utilities\Sync;
 use venveo\bigcommerce\web\twig\CraftVariableBehavior;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
-use Shopify\Webhooks\Registry;
-use Shopify\Webhooks\Topics;
 use yii\base\Event;
 use yii\base\InvalidConfigException;
 
 /**
- * Class Shopify
  *
  * @author    Pixel & Tonic, Inc
- * @package   Shopify
+ * @package   BigCommerce
  * @since     1.0
  *
  * @property-read null|array $cpNavItem
@@ -89,7 +86,7 @@ class Plugin extends BasePlugin
      */
     public function getSettingsResponse(): mixed
     {
-        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('shopify/settings'));
+        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('bigcommerce/settings'));
     }
 
     /**
@@ -112,10 +109,10 @@ class Plugin extends BasePlugin
             }
         }
 
-        // Globally register shopify webhooks registry event handlers
-        Registry::addHandler(Topics::PRODUCTS_CREATE, new ProductHandler());
-        Registry::addHandler(Topics::PRODUCTS_DELETE, new ProductHandler());
-        Registry::addHandler(Topics::PRODUCTS_UPDATE, new ProductHandler());
+        // Globally register bigcommerce webhooks registry event handlers
+//        Registry::addHandler(Topics::PRODUCTS_CREATE, new ProductHandler());
+//        Registry::addHandler(Topics::PRODUCTS_DELETE, new ProductHandler());
+//        Registry::addHandler(Topics::PRODUCTS_UPDATE, new ProductHandler());
     }
 
     /**
@@ -171,7 +168,7 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Register the element types supplied by Shopify
+     * Register the element types supplied by BigCommerce
      *
      * @since 3.0
      */
@@ -183,7 +180,7 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Register Shopify’s fields
+     * Register BigCommerce’s fields
      *
      * @since 3.0
      */
@@ -195,7 +192,7 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Register Shopify twig variables to the main craft variable
+     * Register BigCommerce twig variables to the main craft variable
      *
      * @since 3.0
      */
@@ -203,7 +200,7 @@ class Plugin extends BasePlugin
     {
         Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, static function(Event $event) {
             $variable = $event->sender;
-            $variable->attachBehavior('shopify', CraftVariableBehavior::class);
+            $variable->attachBehavior('bigcommerce', CraftVariableBehavior::class);
         });
     }
 
@@ -216,13 +213,13 @@ class Plugin extends BasePlugin
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $session = Plugin::getInstance()->getApi()->getSession();
-            $event->rules['shopify'] = ['template' => 'shopify/_index', 'variables' => ['hasSession' => (bool)$session]];
+            $event->rules['bigcommerce'] = ['template' => 'bigcommerce/_index', 'variables' => ['hasSession' => (bool)$session]];
 
-            $event->rules['shopify/products'] = 'shopify/products/product-index';
-            $event->rules['shopify/sync-products'] = 'shopify/products/sync';
-            $event->rules['shopify/products/<elementId:\d+>'] = 'elements/edit';
-            $event->rules['shopify/settings'] = 'shopify/settings';
-            $event->rules['shopify/webhooks'] = 'shopify/webhooks/edit';
+            $event->rules['bigcommerce/products'] = 'bigcommerce/products/product-index';
+            $event->rules['bigcommerce/sync-products'] = 'bigcommerce/products/sync';
+            $event->rules['bigcommerce/products/<elementId:\d+>'] = 'elements/edit';
+            $event->rules['bigcommerce/settings'] = 'bigcommerce/settings';
+            $event->rules['bigcommerce/webhooks'] = 'bigcommerce/webhooks/edit';
         });
     }
 
@@ -234,7 +231,7 @@ class Plugin extends BasePlugin
     private function _registerSiteRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
-            $event->rules['shopify/webhook/handle'] = 'shopify/webhook/handle';
+            $event->rules['bigcommerce/webhook/handle'] = 'bigcommerce/webhook/handle';
         });
     }
 
@@ -244,29 +241,29 @@ class Plugin extends BasePlugin
     public function getCpNavItem(): ?array
     {
         $ret = parent::getCpNavItem();
-        $ret['label'] = Craft::t('shopify', 'Shopify');
+        $ret['label'] = Craft::t('bigcommerce', 'BigCommerce');
 
         $session = Plugin::getInstance()->getApi()->getSession();
 
         if ($session) {
             $ret['subnav']['products'] = [
-                'label' => Craft::t('shopify', 'Products'),
-                'url' => 'shopify/products',
+                'label' => Craft::t('bigcommerce', 'Products'),
+                'url' => 'bigcommerce/products',
             ];
         }
 
         if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $ret['subnav']['settings'] = [
-                'label' => Craft::t('shopify', 'Settings'),
-                'url' => 'shopify/settings',
+                'label' => Craft::t('bigcommerce', 'Settings'),
+                'url' => 'bigcommerce/settings',
             ];
         }
 
         if ($session) {
             if (Craft::$app->getUser()->getIsAdmin()) {
                 $ret['subnav']['webhooks'] = [
-                    'label' => Craft::t('shopify', 'Webhooks'),
-                    'url' => 'shopify/webhooks',
+                    'label' => Craft::t('bigcommerce', 'Webhooks'),
+                    'url' => 'bigcommerce/webhooks',
                 ];
             }
         }

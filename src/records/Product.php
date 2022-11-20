@@ -19,7 +19,7 @@ use yii\db\ActiveQueryInterface;
  * @since 3.0
  *
  * @property int $id
- * @property int $shopifyId
+ * @property int $bcId
  *
  */
 class Product extends ActiveRecord
@@ -39,6 +39,6 @@ class Product extends ActiveRecord
 
     public function getData(): ActiveQueryInterface
     {
-        return $this->hasOne(ProductData::class, ['shopifyId' => 'id']);
+        return $this->hasOne(ProductData::class, ['bcId' => 'id']);
     }
 }

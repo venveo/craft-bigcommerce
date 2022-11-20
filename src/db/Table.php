@@ -8,7 +8,7 @@
 namespace venveo\bigcommerce\db;
 
 /**
- * This class provides public constants for defining Shopify’s database table names. Do not use these in migrations.
+ * This class provides public constants for defining BigCommerce’s database table names. Do not use these in migrations.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0

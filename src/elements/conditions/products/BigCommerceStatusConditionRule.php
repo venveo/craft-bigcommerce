@@ -10,14 +10,14 @@ use craft\helpers\StringHelper;
 use venveo\bigcommerce\elements\db\ProductQuery;
 use venveo\bigcommerce\elements\Product;
 
-class ShopifyStatusConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
+class BigCommerceStatusConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
 {
     /**
      * @inheritDoc
      */
     public function getLabel(): string
     {
-        return \Craft::t('shopify', 'Shopify Status');
+        return \Craft::t('bigcommerce', 'BigCommerce Status');
     }
 
     /**
@@ -26,9 +26,9 @@ class ShopifyStatusConditionRule extends BaseMultiSelectConditionRule implements
     protected function options(): array
     {
         return [
-            ['value' => Product::SHOPIFY_STATUS_ACTIVE, 'label' => StringHelper::titleize(Product::SHOPIFY_STATUS_ACTIVE)],
-            ['value' => Product::SHOPIFY_STATUS_DRAFT, 'label' => StringHelper::titleize(Product::SHOPIFY_STATUS_DRAFT)],
-            ['value' => Product::SHOPIFY_STATUS_ARCHIVED, 'label' => StringHelper::titleize(Product::SHOPIFY_STATUS_ARCHIVED)],
+            ['value' => Product::BC_STATUS_ACTIVE, 'label' => StringHelper::titleize(Product::BC_STATUS_ACTIVE)],
+            ['value' => Product::BC_STATUS_DRAFT, 'label' => StringHelper::titleize(Product::BC_STATUS_DRAFT)],
+            ['value' => Product::BC_STATUS_ARCHIVED, 'label' => StringHelper::titleize(Product::BC_STATUS_ARCHIVED)],
         ];
     }
 
@@ -37,7 +37,7 @@ class ShopifyStatusConditionRule extends BaseMultiSelectConditionRule implements
      */
     public function getExclusiveQueryParams(): array
     {
-        return ['shopifyStatus'];
+        return ['bcStatus'];
     }
 
     /**
@@ -46,7 +46,7 @@ class ShopifyStatusConditionRule extends BaseMultiSelectConditionRule implements
      */
     public function matchElement(ElementInterface $element): bool
     {
-        return $this->matchValue($element->shopifyStatus);
+        return $this->matchValue($element->bcStatus);
     }
 
     /**
@@ -55,6 +55,6 @@ class ShopifyStatusConditionRule extends BaseMultiSelectConditionRule implements
     public function modifyQuery(ElementQueryInterface $query): void
     {
         /** @var ProductQuery $query */
-        $query->shopifyStatus($this->paramValue());
+        $query->bcStatus($this->paramValue());
     }
 }

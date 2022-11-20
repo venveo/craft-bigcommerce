@@ -8,8 +8,8 @@
 namespace venveo\bigcommerce\handlers;
 
 use venveo\bigcommerce\Plugin;
-use Shopify\Webhooks\Handler;
-use Shopify\Webhooks\Topics;
+//use Shopify\Webhooks\Handler;
+//use Shopify\Webhooks\Topics;
 
 class Product implements Handler
 {
@@ -18,10 +18,10 @@ class Product implements Handler
         switch ($topic) {
             case Topics::PRODUCTS_UPDATE:
             case Topics::PRODUCTS_CREATE:
-                Plugin::getInstance()->getProducts()->syncProductByShopifyId($body['id']);
+                Plugin::getInstance()->getProducts()->syncProductByBcId($body['id']);
                 break;
             case Topics::PRODUCTS_DELETE:
-                Plugin::getInstance()->getProducts()->deleteProductByShopifyId($body['id']);
+                Plugin::getInstance()->getProducts()->deleteProductByBcId($body['id']);
                 break;
         }
     }

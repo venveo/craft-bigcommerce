@@ -1,6 +1,6 @@
 {% extends "_layouts/elementindex" %}
-{% set title = "Shopify Products"|t('shopify') %}
-{% set elementType = 'craft\\shopify\\elements\\Product' %}
+{% set title = "BigCommerce Products"|t('bigcommerce') %}
+{% set elementType = 'craft\\bigcommerce\\elements\\Product' %}
 {% set canHaveDrafts = true %}
 
 {% block toolbar %}
@@ -8,6 +8,6 @@
 
     {% if newProductUrl %}
         <a data-icon="external" class="btn submit" href="{{ newProductUrl }}"
-           target="_blank">{{ 'New Product'|t('shopify') }}</a>
+           target="_blank">{{ 'New Product'|t('bigcommerce') }}</a>
     {% endif %}
 {% endblock %}

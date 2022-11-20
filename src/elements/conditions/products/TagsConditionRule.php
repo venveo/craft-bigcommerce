@@ -16,7 +16,7 @@ class TagsConditionRule extends BaseTextConditionRule implements ElementConditio
      */
     public function getLabel(): string
     {
-        return \Craft::t('shopify', 'Tags');
+        return \Craft::t('bigcommerce', 'Tags');
     }
 
     /**

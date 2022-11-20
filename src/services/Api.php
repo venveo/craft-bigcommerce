@@ -64,7 +64,7 @@ class Api extends Component
      *
      * @return ShopifyProduct
      */
-    public function getProductByShopifyId($id): ShopifyProduct
+    public function getProductByBcId($id): ShopifyProduct
     {
         return ShopifyProduct::find($this->getSession(), $id);
     }
@@ -161,7 +161,7 @@ class Api extends Component
                 // This `hostName` is different from the `shop` value used when creating a Session!
                 // Shopify wants a name for the host/environment that is initiating the connection.
                 hostName: !Craft::$app->request->isConsoleRequest ? Craft::$app->getRequest()->getHostName() : 'localhost',
-                sessionStorage: new FileSessionStorage(Craft::$app->getPath()->getStoragePath() . DIRECTORY_SEPARATOR . 'shopify_api_sessions'),
+                sessionStorage: new FileSessionStorage(Craft::$app->getPath()->getStoragePath() . DIRECTORY_SEPARATOR . 'bigcommerce_api_sessions'),
                 apiVersion: self::SHOPIFY_API_VERSION,
                 isEmbeddedApp: false,
                 logger: $webLogTarget->getLogger()

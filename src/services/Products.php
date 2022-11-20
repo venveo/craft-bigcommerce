@@ -5,6 +5,7 @@ namespace venveo\bigcommerce\services;
 use Craft;
 use craft\base\Component;
 use venveo\bigcommerce\elements\Product;
+use venveo\bigcommerce\events\BigCommerceProductSyncEvent;
 use venveo\bigcommerce\Plugin;
 use venveo\bigcommerce\records\ProductData as ProductDataRecord;
 
@@ -25,8 +26,8 @@ class Products extends Component
      * ---
      *
      * ```php
-     * use craft\shopify\events\ShopifyProductSyncEvent;
-     * use craft\shopify\services\Products;
+     * use venveo\bigcommerce\events\ShopifyProductSyncEvent;
+     * use venveo\bigcommerce\services\Products;
      * use yii\base\Event;
      *
      * Event::on(
@@ -59,8 +60,8 @@ class Products extends Component
         }
 
         // Remove any products that are no longer in Shopify just in case.
-        $shopifyIds = ArrayHelper::getColumn($products, 'id');
-        $deletableProductElements = ProductElement::find()->shopifyId(['not', $shopifyIds])->all();
+        $bcIds = ArrayHelper::getColumn($products, 'id');
+        $deletableProductElements = ProductElement::find()->bcId(['not', $bcIds])->all();
 
         foreach ($deletableProductElements as $element) {
             Craft::$app->elements->deleteElement($element);
@@ -72,18 +73,18 @@ class Products extends Component
      * @throws \Throwable
      * @throws \yii\base\InvalidConfigException
      */
-    public function syncProductByShopifyId($id): void
+    public function syncProductByBcId($id): void
     {
         $api = Plugin::getInstance()->getApi();
 
-        $product = $api->getProductByShopifyId($id);
+        $product = $api->getProductByBcId($id);
         $metafields = $api->getMetafieldsByProductId($id);
 
         $this->createOrUpdateProduct($product, $metafields);
     }
 
     /**
-     * This takes the shopify data from the REST API and creates or updates a product element.
+     * This takes the bigcommerce data from the REST API and creates or updates a product element.
      *
      * @param ShopifyProduct $product
      * @param ShopifyMetafield[] $metafields
@@ -94,9 +95,9 @@ class Products extends Component
         // Expand any JSON-like properties:
         $metafields = MetafieldsHelper::unpack($metafields);
 
-        // Build our attribute set from the Shopify product data:
+        // Build our attribute set from the BigCommerce product data:
         $attributes = [
-            'shopifyId' => $product->id,
+            'bcId' => $product->id,
             'title' => $product->title,
             'bodyHtml' => $product->body_html,
             'createdAt' => $product->created_at,
@@ -106,18 +107,18 @@ class Products extends Component
             'productType' => $product->product_type,
             'publishedAt' => $product->published_at,
             'publishedScope' => $product->published_scope,
-            'shopifyStatus' => $product->status,
+            'bcStatus' => $product->status,
             'tags' => $product->tags,
             'templateSuffix' => $product->template_suffix,
             'updatedAt' => $product->updated_at,
             'variants' => $product->variants,
             'vendor' => $product->vendor,
-            // This one is unusual, because we’re merging two different Shopify API resources:
+            // This one is unusual, because we’re merging two different BigCommerce API resources:
             'metaFields' => $metafields,
         ];
 
         // Find the product data or create one
-        $productDataRecord = ProductDataRecord::find()->where(['shopifyId' => $product->id])->one() ?: new ProductDataRecord();
+        $productDataRecord = ProductDataRecord::find()->where(['bcId' => $product->id])->one() ?: new ProductDataRecord();
 
         // Set attributes and save:
         $productDataRecord->setAttributes($attributes, false);
@@ -126,7 +127,7 @@ class Products extends Component
         // Find the product element or create one
         /** @var ProductElement|null $productElement */
         $productElement = ProductElement::find()
-            ->shopifyId($product->id)
+            ->bcId($product->id)
             ->status(null)
             ->one();
 
@@ -138,7 +139,7 @@ class Products extends Component
         // Set attributes on the element to emulate it having been loaded with JOINed data:
         $productElement->setAttributes($attributes, false);
 
-        $event = new ShopifyProductSyncEvent([
+        $event = new BigCommerceProductSyncEvent([
             'element' => $productElement,
             'source' => $product,
             'metafields' => $metafields,
@@ -146,13 +147,13 @@ class Products extends Component
         $this->trigger(self::EVENT_BEFORE_SYNCHRONIZE_PRODUCT, $event);
 
         if (!$event->isValid) {
-            Craft::warning("Synchronization of Shopify product ID #{$product->id} was stopped by a plugin.", 'shopify');
+            Craft::warning("Synchronization of BigCommerce product ID #{$product->id} was stopped by a plugin.", 'bigcommerce');
 
             return false;
         }
 
         if (!Craft::$app->getElements()->saveElement($productElement)) {
-            Craft::error("Failed to synchronize Shopify product ID #{$product->id}.", 'shopify');
+            Craft::error("Failed to synchronize Shopify product ID #{$product->id}.", 'bigcommerce');
 
             return false;
         }
@@ -161,32 +162,32 @@ class Products extends Component
     }
 
     /**
-     * Deletes a product element by the Shopify ID.
+     * Deletes a product element by the BigCommerce ID.
      *
      * @param $id
      * @return void
      */
-    public function deleteProductByShopifyId($id): void
+    public function deleteProductByBcId($id): void
     {
         if ($id) {
-            if ($product = ProductElement::find()->shopifyId($id)->one()) {
-                // We hard delete because it will have been hard deleted in Shopify
+            if ($product = ProductElement::find()->bcId($id)->one()) {
+                // We hard delete because it will have been hard deleted in BigCommerce
                 Craft::$app->getElements()->deleteElement($product, true);
             }
-            if ($productData = ProductDataRecord::find()->where(['shopifyId' => $id])->one()) {
+            if ($productData = ProductDataRecord::find()->where(['bcId' => $id])->one()) {
                 $productData->delete();
             }
         }
     }
 
     /**
-     * Gets a Product element ID from a shopify ID.
+     * Gets a Product element ID from a bigcommerce ID.
      *
      * @param $id
      * @return int
      */
-    public function getProductIdByShopifyId($id): int
+    public function getProductIdByBcId($id): int
     {
-        return ProductElement::find()->shopifyId($id)->one()->id;
+        return ProductElement::find()->bcId($id)->one()->id;
     }
 }

@@ -23,11 +23,11 @@ use venveo\bigcommerce\elements\Product;
 class ProductQuery extends ElementQuery
 {
     /**
-     * @var mixed The Shopify product ID(s) that the resulting products must have.
+     * @var mixed The BigCommerce product ID(s) that the resulting products must have.
      */
-    public mixed $shopifyId = null;
+    public mixed $bcId = null;
 
-    public mixed $shopifyStatus = null;
+    public mixed $bcStatus = null;
     public mixed $handle = null;
     public mixed $productType = null;
     public mixed $publishedScope = null;
@@ -39,7 +39,7 @@ class ProductQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected array $defaultOrderBy = ['shopify_productdata.shopifyId' => SORT_ASC];
+    protected array $defaultOrderBy = ['bigcommerce_productdata.bcId' => SORT_ASC];
 
     /**
      * @inheritdoc
@@ -55,7 +55,7 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the Shopify product type
+     * Narrows the query results based on the BigCommerce product type
      */
     public function productType(mixed $value): self
     {
@@ -64,16 +64,16 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the Shopify status
+     * Narrows the query results based on the BigCommerce status
      */
-    public function shopifyStatus(mixed $value): self
+    public function bcStatus(mixed $value): self
     {
-        $this->shopifyStatus = $value;
+        $this->bcStatus = $value;
         return $this;
     }
 
     /**
-     * Narrows the query results based on the Shopify product handle
+     * Narrows the query results based on the BigCommerce product handle
      */
     public function handle(mixed $value): self
     {
@@ -82,7 +82,7 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the Shopify product vendor
+     * Narrows the query results based on the BigCommerce product vendor
      */
     public function vendor(mixed $value): self
     {
@@ -91,7 +91,7 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the Shopify product tags
+     * Narrows the query results based on the BigCommerce product tags
      */
     public function tags(mixed $value): self
     {
@@ -100,11 +100,11 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the Shopify product ID
+     * Narrows the query results based on the BigCommerce product ID
      */
-    public function shopifyId(mixed $value): ProductQuery
+    public function bcId(mixed $value): ProductQuery
     {
-        $this->shopifyId = $value;
+        $this->bcId = $value;
         return $this;
     }
 
@@ -115,11 +115,11 @@ class ProductQuery extends ElementQuery
      *
      * | Value | Fetches {elements}…
      * | - | -
-     * | `'live'` _(default)_ | that are live (enabled in Craft, with an Active shopify Status).
-     * | `'shopifyDraft'` | that are enabled with a Draft shopify Status.
-     * | `'shopifyArchived'` | that are enabled, with an Archived shopify Status.
-     * | `'disabled'` | that are disabled in Craft (Regardless of Shopify Status).
-     * | `['live', 'shopifyDraft']` | that are live or shopify draft.
+     * | `'live'` _(default)_ | that are live (enabled in Craft, with an Active bigcommerce Status).
+     * | `'bcDraft'` | that are enabled with a Draft bigcommerce Status.
+     * | `'bcArchived'` | that are enabled, with an Archived bigcommerce Status.
+     * | `'disabled'` | that are disabled in Craft (Regardless of BigCommerce Status).
+     * | `['live', 'bcDraft']` | that are live or bigcommerce draft.
      *
      * ---
      *
@@ -152,17 +152,17 @@ class ProductQuery extends ElementQuery
             strtolower(Product::STATUS_LIVE) => [
                 'elements.enabled' => true,
                 'elements_sites.enabled' => true,
-                'shopify_productdata.shopifyStatus' => 'active',
+                'bigcommerce_productdata.bcStatus' => 'active',
             ],
-            strtolower(Product::STATUS_SHOPIFY_DRAFT) => [
+            strtolower(Product::STATUS_BC_DRAFT) => [
                 'elements.enabled' => true,
                 'elements_sites.enabled' => true,
-                'shopify_productdata.shopifyStatus' => 'draft',
+                'bigcommerce_productdata.bcStatus' => 'draft',
             ],
-            strtolower(Product::STATUS_SHOPIFY_ARCHIVED) => [
+            strtolower(Product::STATUS_BC_ARCHIVED) => [
                 'elements.enabled' => true,
                 'elements_sites.enabled' => true,
-                'shopify_productdata.shopifyStatus' => 'archived',
+                'bigcommerce_productdata.bcStatus' => 'archived',
             ],
             default => parent::statusCondition($status),
         };
@@ -176,61 +176,61 @@ class ProductQuery extends ElementQuery
      */
     protected function beforePrepare(): bool
     {
-        if ($this->shopifyId === []) {
+        if ($this->bcId === []) {
             return false;
         }
 
-        $productTable = 'shopify_products';
-        $productDataTable = 'shopify_productdata';
+        $productTable = 'bigcommerce_products';
+        $productDataTable = 'bigcommerce_productdata';
 
-        // join standard product element table that only contains the shopifyId
+        // join standard product element table that only contains the bcId
         $this->joinElementTable($productTable);
 
         $productDataJoinTable = [$productDataTable => "{{%$productDataTable}}"];
-        $this->query->innerJoin($productDataJoinTable, "[[$productDataTable.shopifyId]] = [[$productTable.shopifyId]]");
-        $this->subQuery->innerJoin($productDataJoinTable, "[[$productDataTable.shopifyId]] = [[$productTable.shopifyId]]");
+        $this->query->innerJoin($productDataJoinTable, "[[$productDataTable.bcId]] = [[$productTable.bcId]]");
+        $this->subQuery->innerJoin($productDataJoinTable, "[[$productDataTable.bcId]] = [[$productTable.bcId]]");
 
         $this->query->select([
-            'shopify_products.shopifyId',
-            'shopify_productdata.shopifyStatus',
-            'shopify_productdata.handle',
-            'shopify_productdata.productType',
-            'shopify_productdata.bodyHtml',
-            'shopify_productdata.createdAt',
-            'shopify_productdata.publishedAt',
-            'shopify_productdata.publishedScope',
-            'shopify_productdata.tags',
-            'shopify_productdata.templateSuffix',
-            'shopify_productdata.updatedAt',
-            'shopify_productdata.vendor',
-            'shopify_productdata.metaFields',
-            'shopify_productdata.images',
-            'shopify_productdata.options',
-            'shopify_productdata.variants',
+            'bigcommerce_products.bcId',
+            'bigcommerce_productdata.bcStatus',
+            'bigcommerce_productdata.handle',
+            'bigcommerce_productdata.productType',
+            'bigcommerce_productdata.bodyHtml',
+            'bigcommerce_productdata.createdAt',
+            'bigcommerce_productdata.publishedAt',
+            'bigcommerce_productdata.publishedScope',
+            'bigcommerce_productdata.tags',
+            'bigcommerce_productdata.templateSuffix',
+            'bigcommerce_productdata.updatedAt',
+            'bigcommerce_productdata.vendor',
+            'bigcommerce_productdata.metaFields',
+            'bigcommerce_productdata.images',
+            'bigcommerce_productdata.options',
+            'bigcommerce_productdata.variants',
         ]);
 
-        if (isset($this->shopifyId)) {
-            $this->subQuery->andWhere(['shopify_productdata.shopifyId' => $this->shopifyId]);
+        if (isset($this->bcId)) {
+            $this->subQuery->andWhere(['bigcommerce_productdata.bcId' => $this->bcId]);
         }
 
         if (isset($this->productType)) {
-            $this->subQuery->andWhere(['shopify_productdata.productType' => $this->productType]);
+            $this->subQuery->andWhere(['bigcommerce_productdata.productType' => $this->productType]);
         }
 
-        if (isset($this->shopifyStatus)) {
-            $this->subQuery->andWhere(Db::parseParam('shopify_productdata.shopifyStatus', $this->shopifyStatus));
+        if (isset($this->bcStatus)) {
+            $this->subQuery->andWhere(Db::parseParam('bigcommerce_productdata.bcStatus', $this->bcStatus));
         }
 
         if (isset($this->handle)) {
-            $this->subQuery->andWhere(Db::parseParam('shopify_productdata.handle', $this->handle));
+            $this->subQuery->andWhere(Db::parseParam('bigcommerce_productdata.handle', $this->handle));
         }
 
         if (isset($this->vendor)) {
-            $this->subQuery->andWhere(Db::parseParam('shopify_productdata.vendor', $this->vendor));
+            $this->subQuery->andWhere(Db::parseParam('bigcommerce_productdata.vendor', $this->vendor));
         }
 
         if (isset($this->tags)) {
-            $this->subQuery->andWhere(Db::parseParam('shopify_productdata.tags', $this->tags));
+            $this->subQuery->andWhere(Db::parseParam('bigcommerce_productdata.tags', $this->tags));
         }
 
         return parent::beforePrepare();

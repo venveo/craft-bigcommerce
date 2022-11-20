@@ -18,7 +18,7 @@ class ProductTypeConditionRule extends BaseMultiSelectConditionRule implements E
      */
     public function getLabel(): string
     {
-        return \Craft::t('shopify', 'Product Type');
+        return \Craft::t('bigcommerce', 'Product Type');
     }
 
     /**

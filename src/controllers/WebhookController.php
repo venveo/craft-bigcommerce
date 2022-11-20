@@ -10,12 +10,11 @@ namespace venveo\bigcommerce\controllers;
 use Craft;
 use venveo\bigcommerce\Plugin;
 use craft\web\Controller;
-use Shopify\Webhooks\Registry;
 use yii\web\MethodNotAllowedHttpException;
 use yii\web\Response as YiiResponse;
 
 /**
- * The WebhookController handles the Shopify webhook request.
+ * The WebhookController handles the BigCommerce webhook request.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
@@ -27,7 +26,7 @@ class WebhookController extends Controller
     public array|bool|int $allowAnonymous = ['handle'];
 
     /**
-     * Handles the webhooks from Shopify for all topics
+     * Handles the webhooks from BigCommerce for all topics
      *
      * @return YiiResponse
      */
@@ -36,7 +35,7 @@ class WebhookController extends Controller
         $request = Craft::$app->getRequest();
 
         if (!Plugin::getInstance()->getApi()->getSession()) {
-            throw new MethodNotAllowedHttpException('No Shopify API session found, check credentials in settings.');
+            throw new MethodNotAllowedHttpException('No BigCommerce API session found, check credentials in settings.');
         }
 
         try {

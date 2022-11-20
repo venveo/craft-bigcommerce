@@ -19,7 +19,7 @@ class ProductCondition extends ElementCondition
     {
         return array_merge(parent::conditionRuleTypes(), [
             ProductTypeConditionRule::class,
-            ShopifyStatusConditionRule::class,
+            BigCommerceStatusConditionRule::class,
             VendorConditionRule::class,
             HandleConditionRule::class,
             TagsConditionRule::class,
