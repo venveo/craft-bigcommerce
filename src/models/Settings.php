@@ -13,17 +13,17 @@ use craft\helpers\UrlHelper;
 use venveo\bigcommerce\elements\Product;
 
 /**
- * Shopify Settings model.
+ * BigCommerce Settings model.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
  */
 class Settings extends Model
 {
-    public string $apiKey = '';
-    public string $apiSecretKey = '';
+    public string $clientId = '';
+    public string $clientSecret = '';
     public string $accessToken = '';
-    public string $hostName = '';
+    public string $storeHash = '';
     public string $uriFormat = '';
     public string $template = '';
     private mixed $_productFieldLayout;
@@ -31,7 +31,7 @@ class Settings extends Model
     public function rules(): array
     {
         return [
-            [['apiSecretKey', 'apiKey', 'accessToken', 'hostName'], 'required'],
+            [['clientId', 'clientSecret', 'accessToken', 'storeHash'], 'required'],
         ];
     }
 
@@ -41,10 +41,10 @@ class Settings extends Model
     public function attributeLabels(): array
     {
         return [
-            'apiKey' => Craft::t('bigcommerce', 'BigCommerce API Key'),
-            'apiSecretKey' => Craft::t('bigcommerce', 'BigCommerce API Secret Key'),
+            'clientId' => Craft::t('bigcommerce', 'BigCommerce API Client ID'),
+            'clientSecret' => Craft::t('bigcommerce', 'BigCommerce API Secret Key'),
             'accessToken' => Craft::t('bigcommerce', 'BigCommerce Access Token'),
-            'hostName' => Craft::t('bigcommerce', 'BigCommerce Host Name'),
+            'storeHash' => Craft::t('bigcommerce', 'BigCommerce Store ID'),
             'uriFormat' => Craft::t('bigcommerce', 'Product URI format'),
             'template' => Craft::t('bigcommerce', 'Product Template'),
         ];
