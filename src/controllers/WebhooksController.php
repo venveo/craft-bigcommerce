@@ -11,6 +11,7 @@ use Craft;
 use craft\helpers\Json;
 use craft\web\assets\admintable\AdminTableAsset;
 use craft\web\Controller;
+use venveo\bigcommerce\handlers\Product as ProductHandler;
 use venveo\bigcommerce\Plugin;
 use yii\web\ConflictHttpException;
 use yii\web\Response as YiiResponse;
@@ -80,7 +81,7 @@ class WebhooksController extends Controller
 
         $responseDelete = $client->getRestClient()->post('hooks', [
             'json' => [
-                'scope' => 'store/product/deleted',
+                'scope' => ProductHandler::PRODUCT_DELETE,
                 'destination' => $destination,
                 'is_active' => true,
                 'events_history_enabled' => true
@@ -89,7 +90,7 @@ class WebhooksController extends Controller
 
         $responseCreate = $client->getRestClient()->post('hooks', [
             'json' => [
-                'scope' => 'store/product/created',
+                'scope' => ProductHandler::PRODUCT_CREATE,
                 'destination' => $destination,
                 'is_active' => true,
                 'events_history_enabled' => true
@@ -98,7 +99,7 @@ class WebhooksController extends Controller
 
         $responseUpdate = $client->getRestClient()->post('hooks', [
             'json' => [
-                'scope' => 'store/product/updated',
+                'scope' => ProductHandler::PRODUCT_UPDATE,
                 'destination' => $destination,
                 'is_active' => true,
                 'events_history_enabled' => true
