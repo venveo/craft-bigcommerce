@@ -7,9 +7,9 @@
 
 namespace venveo\bigcommerce\events;
 
+use BigCommerce\ApiV3\ResourceModels\Catalog\Product\Product as BcProduct;
 use craft\events\CancelableEvent;
 use venveo\bigcommerce\elements\Product as ProductElement;
-//use Shopify\Rest\Admin2022_10\Product as ShopifyProduct;
 
 /**
  * Event triggered just before a synchronized product element is going to be saved.
@@ -24,9 +24,9 @@ class BigCommerceProductSyncEvent extends CancelableEvent
     public ProductElement $element;
 
 //    /**
-//     * @var ShopifyProduct Source Shopify API resource.
+//     * @var Product Source Shopify API resource.
 //     */
-//    public ShopifyProduct $source;
+    public BcProduct $source;
 
     /**
      * @var array List of Shopify metafields for the product.

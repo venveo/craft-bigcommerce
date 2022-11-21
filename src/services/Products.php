@@ -4,7 +4,9 @@ namespace venveo\bigcommerce\services;
 
 use Craft;
 use craft\base\Component;
-use venveo\bigcommerce\elements\Product;
+use craft\helpers\ArrayHelper;
+use craft\helpers\StringHelper;
+use venveo\bigcommerce\elements\Product as ProductElement;
 use venveo\bigcommerce\events\BigCommerceProductSyncEvent;
 use venveo\bigcommerce\Plugin;
 use venveo\bigcommerce\records\ProductData as ProductDataRecord;
@@ -21,20 +23,20 @@ use venveo\bigcommerce\records\ProductData as ProductDataRecord;
 class Products extends Component
 {
     /**
-     * @event ShopifyProductSyncEvent Event triggered just before Shopify product data is saved to a product element.
+     * @event BigCommerceProductSyncEvent Event triggered just before Shopify product data is saved to a product element.
      *
      * ---
      *
      * ```php
-     * use venveo\bigcommerce\events\ShopifyProductSyncEvent;
+     * use venveo\bigcommerce\events\BigCommerceProductSyncEvent;
      * use venveo\bigcommerce\services\Products;
      * use yii\base\Event;
      *
      * Event::on(
      *     Products::class,
      *     Products::EVENT_BEFORE_SYNCHRONIZE_PRODUCT,
-     *     function(ShopifyProductSyncEvent $event) {
-     *         // Cancel the sync if a flag is set via a Shopify metafield:
+     *     function(BigCommerceProductSyncEvent $event) {
+     *         // Cancel the sync if a flag is set via a BigCommerce metafield:
      *         if ($event->metafields['do_not_sync'] ?? false) {
      *             $event->isValid = false;
      *         }
@@ -55,7 +57,9 @@ class Products extends Component
         $products = $api->getAllProducts();
 
         foreach ($products as $product) {
-            $metafields = $api->getMetafieldsByProductId($product->id);
+//            $metafields = $api->getMetafieldsByProductId($product->id);
+            // TODO:
+            $metafields = [];
             $this->createOrUpdateProduct($product, $metafields);
         }
 
@@ -90,31 +94,36 @@ class Products extends Component
      * @param ShopifyMetafield[] $metafields
      * @return bool Whether or not the synchronization succeeded.
      */
-    public function createOrUpdateProduct(ShopifyProduct $product, array $metafields = []): bool
+    public function createOrUpdateProduct(\BigCommerce\ApiV3\ResourceModels\Catalog\Product\Product $product, array $metafields = []): bool
     {
         // Expand any JSON-like properties:
-        $metafields = MetafieldsHelper::unpack($metafields);
+//        $metafields = MetafieldsHelper::unpack($metafields);
+        $handle = $product->custom_url->url ?? null;
+        if ($handle) {
+            $handle = StringHelper::slugify($handle);
+        }
 
         // Build our attribute set from the BigCommerce product data:
         $attributes = [
             'bcId' => $product->id,
-            'title' => $product->title,
-            'bodyHtml' => $product->body_html,
-            'createdAt' => $product->created_at,
-            'handle' => $product->handle,
-            'images' => $product->images,
-            'options' => $product->options,
-            'productType' => $product->product_type,
-            'publishedAt' => $product->published_at,
-            'publishedScope' => $product->published_scope,
-            'bcStatus' => $product->status,
-            'tags' => $product->tags,
-            'templateSuffix' => $product->template_suffix,
-            'updatedAt' => $product->updated_at,
-            'variants' => $product->variants,
-            'vendor' => $product->vendor,
+            'title' => $product->name,
+            'bodyHtml' => $product->description, // Rename field
+            'createdAt' => $product->date_created,
+            'handle' => $handle, // ??
+            'images' => [], // ??
+            'options' => [], // ??
+            'productType' => $product->type,
+            'publishedAt' => $product->date_created, // Unused?
+            'publishedScope' => null, // Unused?
+            'bcStatus' => $product->is_visible ? ProductElement::BC_STATUS_ACTIVE : ProductElement::BC_STATUS_DRAFT,
+            'tags' => [], // Unused?
+            'templateSuffix' => $product->layout_file, // Rename
+            'updatedAt' => $product->date_modified,
+            'variants' => [],
+            'vendor' => null, // ??
+            'metaFields' => [],
             // This one is unusual, because we’re merging two different BigCommerce API resources:
-            'metaFields' => $metafields,
+//            'metaFields' => $metafields,
         ];
 
         // Find the product data or create one
@@ -153,7 +162,7 @@ class Products extends Component
         }
 
         if (!Craft::$app->getElements()->saveElement($productElement)) {
-            Craft::error("Failed to synchronize Shopify product ID #{$product->id}.", 'bigcommerce');
+            Craft::error("Failed to synchronize BigCommerce product ID #{$product->id}.", 'bigcommerce');
 
             return false;
         }

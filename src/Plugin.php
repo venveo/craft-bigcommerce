@@ -25,6 +25,7 @@ use venveo\bigcommerce\handlers\Product as ProductHandler;
 use venveo\bigcommerce\models\Settings;
 use venveo\bigcommerce\services\Api;
 use venveo\bigcommerce\services\Products;
+use venveo\bigcommerce\services\Store;
 use venveo\bigcommerce\utilities\Sync;
 use venveo\bigcommerce\web\twig\CraftVariableBehavior;
 use craft\web\twig\variables\CraftVariable;
@@ -68,7 +69,7 @@ class Plugin extends BasePlugin
             'components' => [
                 'api' => ['class' => Api::class],
                 'products' => ['class' => Products::class],
-//                'store' => ['class' => Store::class],
+                'store' => ['class' => Store::class],
             ],
         ];
     }
@@ -212,8 +213,8 @@ class Plugin extends BasePlugin
     private function _registerCpRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
-            $session = Plugin::getInstance()->getApi()->getSession();
-            $event->rules['bigcommerce'] = ['template' => 'bigcommerce/_index', 'variables' => ['hasSession' => (bool)$session]];
+            $isConnected = true;
+            $event->rules['bigcommerce'] = ['template' => 'bigcommerce/_index', 'variables' => ['hasSession' => (bool)$isConnected]];
 
             $event->rules['bigcommerce/products'] = 'bigcommerce/products/product-index';
             $event->rules['bigcommerce/sync-products'] = 'bigcommerce/products/sync';
@@ -243,9 +244,10 @@ class Plugin extends BasePlugin
         $ret = parent::getCpNavItem();
         $ret['label'] = Craft::t('bigcommerce', 'BigCommerce');
 
-        $session = Plugin::getInstance()->getApi()->getSession();
+        $isConnected = true;
+//        $isConnected = Plugin::getInstance()->getApi()->getClient()->catalog()->summary()->get();
 
-        if ($session) {
+        if ($isConnected) {
             $ret['subnav']['products'] = [
                 'label' => Craft::t('bigcommerce', 'Products'),
                 'url' => 'bigcommerce/products',
@@ -259,7 +261,7 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if ($session) {
+        if ($isConnected) {
             if (Craft::$app->getUser()->getIsAdmin()) {
                 $ret['subnav']['webhooks'] = [
                     'label' => Craft::t('bigcommerce', 'Webhooks'),

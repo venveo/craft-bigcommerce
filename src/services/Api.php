@@ -7,6 +7,8 @@
 
 namespace venveo\bigcommerce\services;
 
+use BigCommerce\ApiV3\Client;
+use BigCommerce\ApiV3\ResourceModels\Catalog\Product\Product;
 use Craft;
 use craft\base\Component;
 use craft\helpers\App;
@@ -16,12 +18,9 @@ use Shopify\Auth\FileSessionStorage;
 use Shopify\Auth\Session;
 use Shopify\Clients\Rest;
 use Shopify\Context;
-use Shopify\Rest\Admin2022_10\Metafield as ShopifyMetafield;
-use Shopify\Rest\Admin2022_10\Product as ShopifyProduct;
-use Shopify\Rest\Base as ShopifyBaseResource;
 
 /**
- * Shopify API service.
+ * BigCommerce API service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
@@ -32,41 +31,33 @@ use Shopify\Rest\Base as ShopifyBaseResource;
 class Api extends Component
 {
     /**
-     * @var string
+//     * @var Session|null
      */
-    public const SHOPIFY_API_VERSION = '2022-10';
+//    private ?Session $_session = null;
 
     /**
-     * @var Session|null
+     * @var Client|null
      */
-    private ?Session $_session = null;
-
-    /**
-     * @var Rest|null
-     */
-    private ?Rest $_client = null;
+    private ?Client $_client = null;
 
     /**
      * Retrieve all a shop’s products.
      *
-     * @return ShopifyProduct[]
+     * @return Product[]
      */
     public function getAllProducts(): array
     {
-        /** @var ShopifyProduct[] $all */
-        $all = $this->getAll(ShopifyProduct::class);
-
-        return $all;
+        return $this->getClient()->catalog()->products()->getAllPages()->getProducts();
     }
 
     /**
      * Retrieve a single product by its Shopify ID.
      *
-     * @return ShopifyProduct
+     * @return Product
      */
-    public function getProductByBcId($id): ShopifyProduct
+    public function getProductByBcId($id): Product
     {
-        return ShopifyProduct::find($this->getSession(), $id);
+        return $this->getClient()->catalog()->product($id)->get()->getProduct();
     }
 
     /**
@@ -76,12 +67,13 @@ class Api extends Component
      */
     public function getMetafieldsByProductId(int $id): array
     {
-        return $this->getAll(ShopifyMetafield::class, [
-            'metafield' => [
-                'owner_id' => $id,
-                'owner_resource' => 'product',
-            ],
-        ]);
+        return [];
+//        return $this->getAll(ShopifyMetafield::class, [
+//            'metafield' => [
+//                'owner_id' => $id,
+//                'owner_resource' => 'product',
+//            ],
+//        ]);
     }
 
     /**
@@ -95,91 +87,94 @@ class Api extends Component
 
         return $response->getDecodedBody();
     }
-
-    /**
-     * Iteratively retrieves a paginated collection of API resources.
-     *
-     * @param string $type Stripe API resource class
-     * @param array $params
-     * @return ShopifyBaseResource[]
-     */
-    public function getAll(string $type, array $params = []): array
-    {
-        $resources = [];
-
-        // Force maximum page size:
-        $params['limit'] = 250;
-
-        do {
-            $resources = array_merge($resources, $type::all(
-                $this->getSession(),
-                [],
-                $type::$NEXT_PAGE_QUERY ?: $params,
-            ));
-        } while ($type::$NEXT_PAGE_QUERY);
-
-        return $resources;
-    }
+//
+//    /**
+//     * Iteratively retrieves a paginated collection of API resources.
+//     *
+//     * @param string $type Stripe API resource class
+//     * @param array $params
+//     * @return ShopifyBaseResource[]
+//     */
+//    public function getAll(string $type, array $params = []): array
+//    {
+//        $resources = [];
+//
+//        // Force maximum page size:
+//        $params['limit'] = 250;
+//
+//        do {
+//            $resources = array_merge($resources, $type::all(
+//                $this->getSession(),
+//                [],
+//                $type::$NEXT_PAGE_QUERY ?: $params,
+//            ));
+//        } while ($type::$NEXT_PAGE_QUERY);
+//
+//        return $resources;
+//    }
 
     /**
      * Returns or sets up a Rest API client.
      *
-     * @return Rest
+     * @return Client
      */
-    public function getClient(): Rest
+    public function getClient(): Client
     {
         if ($this->_client === null) {
-            $session = $this->getSession();
-            $this->_client = new Rest($session->getShop(), $session->getAccessToken());
+            $pluginSettings = Plugin::getInstance()->getSettings();
+            $apiClientId = App::parseEnv($pluginSettings->clientId);
+            $apiSecretKey = App::parseEnv($pluginSettings->clientSecret);
+            $storeHash = App::parseEnv($pluginSettings->storeHash);
+            $accessToken = App::parseEnv($pluginSettings->accessToken);
+
+            $this->_client = new \BigCommerce\ApiV3\Client($storeHash, $apiClientId, $accessToken);
         }
 
         return $this->_client;
     }
 
-    /**
-     * Returns or initializes a context + session.
-     *
-     * @return Session|null
-     * @throws \Shopify\Exception\MissingArgumentException
-     */
-    public function getSession(): ?Session
-    {
-        $pluginSettings = Plugin::getInstance()->getSettings();
-
-        if (
-            $this->_session === null &&
-            ($apiKey = App::parseEnv($pluginSettings->apiKey)) &&
-            ($apiSecretKey = App::parseEnv($pluginSettings->apiSecretKey))
-        ) {
-            /** @var MonologTarget $webLogTarget */
-            $webLogTarget = Craft::$app->getLog()->targets['web'];
-
-            Context::initialize(
-                apiKey: $apiKey,
-                apiSecretKey: $apiSecretKey,
-                scopes: ['write_products', 'read_products'],
-                // This `hostName` is different from the `shop` value used when creating a Session!
-                // Shopify wants a name for the host/environment that is initiating the connection.
-                hostName: !Craft::$app->request->isConsoleRequest ? Craft::$app->getRequest()->getHostName() : 'localhost',
-                sessionStorage: new FileSessionStorage(Craft::$app->getPath()->getStoragePath() . DIRECTORY_SEPARATOR . 'bigcommerce_api_sessions'),
-                apiVersion: self::SHOPIFY_API_VERSION,
-                isEmbeddedApp: false,
-                logger: $webLogTarget->getLogger()
-            );
-
-            $hostName = App::parseEnv($pluginSettings->hostName);
-            $accessToken = App::parseEnv($pluginSettings->accessToken);
-
-            $this->_session = new Session(
-                id: 'NA',
-                shop: $hostName,
-                isOnline: false,
-                state: 'NA'
-            );
-
-            $this->_session->setAccessToken($accessToken); // this is the most important part of the authentication
-        }
-
-        return $this->_session;
-    }
+//
+//    /**
+//     * Returns or initializes a context + session.
+//     *
+//     * @return Session|null
+//     * @throws \Shopify\Exception\MissingArgumentException
+//     */
+//    public function getSession(): ?Session
+//    {
+//        $pluginSettings = Plugin::getInstance()->getSettings();
+//
+//        if (
+//            $this->_session === null &&
+//            ($apiClientId = App::parseEnv($pluginSettings->clientId)) &&
+//            ($apiSecretKey = App::parseEnv($pluginSettings->clientSecret))
+//        ) {
+//            /** @var MonologTarget $webLogTarget */
+//            $webLogTarget = Craft::$app->getLog()->targets['web'];
+//            Context::initialize(
+//                apiKey: $apiKey,
+//                apiSecretKey: $apiSecretKey,
+//                scopes: ['write_products', 'read_products'],
+//                // This `hostName` is different from the `shop` value used when creating a Session!
+//                // Shopify wants a name for the host/environment that is initiating the connection.
+//                hostName: !Craft::$app->request->isConsoleRequest ? Craft::$app->getRequest()->getHostName() : 'localhost',
+//                sessionStorage: new FileSessionStorage(Craft::$app->getPath()->getStoragePath() . DIRECTORY_SEPARATOR . 'bigcommerce_api_sessions'),
+//                apiVersion: self::SHOPIFY_API_VERSION,
+//                isEmbeddedApp: false,
+//                logger: $webLogTarget->getLogger()
+//            );
+//
+////
+////            $this->_session = new Session(
+////                id: 'NA',
+////                shop: $storeHash,
+////                isOnline: false,
+////                state: 'NA'
+////            );
+//
+////            $this->_session->setAccessToken($accessToken); // this is the most important part of the authentication
+//        }
+//
+//        return $this->_session;
+//    }
 }

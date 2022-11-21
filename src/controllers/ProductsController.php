@@ -31,8 +31,10 @@ class ProductsController extends \craft\web\Controller
     public function actionProductIndex(): Response
     {
         $newProductUrl = '';
-        if ($baseUrl = Plugin::getInstance()->getSettings()->hostName) {
-            $newProductUrl = UrlHelper::url('https://' . App::parseEnv($baseUrl) . '/admin/products/new');
+        $storeHash = Plugin::getInstance()->settings->storeHash;
+        if ($storeHash) {
+            $baseUrl = 'store-' . App::parseEnv($storeHash) . '.mybigcommerce.com';
+            $newProductUrl = UrlHelper::url('https://' . App::parseEnv($baseUrl) . '/manage/products/add');
         }
 
         return $this->renderTemplate('bigcommerce/products/_index', compact('newProductUrl'));
