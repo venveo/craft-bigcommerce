@@ -95,7 +95,7 @@ class Product
                 ->join(', ');
         }
 
-        $meta[Craft::t('bigcommerce', 'Shopify ID')] = Html::tag('code', $product->bcId);
+        $meta[Craft::t('bigcommerce', 'BigCommerce ID')] = Html::tag('code', $product->bcId);
 
         $meta[Craft::t('bigcommerce', 'Created at')] = $formatter->asDatetime($product->createdAt, Formatter::FORMAT_WIDTH_SHORT);
         $meta[Craft::t('bigcommerce', 'Published at')] = $formatter->asDatetime($product->publishedAt, Formatter::FORMAT_WIDTH_SHORT);

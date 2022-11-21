@@ -27,7 +27,8 @@ class Store extends Component
     public function getUrl(string $path = '', array $params = []): string
     {
         $settings = Plugin::getInstance()->getSettings();
-        $host = App::parseEnv($settings->hostName);
+        $storeHash = App::parseEnv($settings->storeHash);
+        $host = 'store-'.$storeHash.'.mybigcommerce.com';
 
         if (!$host) {
             throw new InvalidConfigException('BigCommerce URLs cannot be generated without a hostname configured.');

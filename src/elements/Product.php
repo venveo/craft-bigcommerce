@@ -417,7 +417,7 @@ class Product extends Element
      */
     public function getBigCommerceEditUrl(): ?string
     {
-        return Plugin::getInstance()->getStore()->getUrl("admin/products/{$this->bcId}");
+        return Plugin::getInstance()->getStore()->getUrl("manage/products/edit/{$this->bcId}");
     }
 
     /**
