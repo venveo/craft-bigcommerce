@@ -31,7 +31,6 @@ use yii\web\Response;
 
 /**
  * Product element.
- * @property array $tags
  * @property array $options
  *
  */
@@ -92,16 +91,6 @@ class Product extends Element
     public ?string $productType = null;
 
     /**
-     * @var ?DateTime
-     */
-    public ?DateTime $publishedAt = null;
-
-    /**
-     * @var string
-     */
-    public ?string $publishedScope = null;
-
-    /**
      * The product ID in the BigCommerce store
      *
      * @var int|null
@@ -113,15 +102,8 @@ class Product extends Element
      */
     public string $bcStatus = 'active';
 
-    /**
-     * @var array
-     */
-    private array $_tags = [];
+    public ?string $sku = null;
 
-    /**
-     * @var string
-     */
-    public ?string $templateSuffix = null;
 
     /**
      * @var ?DateTime
@@ -148,7 +130,7 @@ class Product extends Element
             'handle',
             'vendor',
             'productType',
-            'tags',
+            'sku',
             'options',
             'metaFields',
         ]);
@@ -183,27 +165,6 @@ class Product extends Element
         }
 
         return $status;
-    }
-
-    /**
-     * @param array|string $tags
-     * @return void
-     */
-    public function setTags(array|string $tags): void
-    {
-        if (is_string($tags)) {
-            $tags = StringHelper::split($tags);
-        }
-
-        $this->tags = $tags;
-    }
-
-    /**
-     * @return array
-     */
-    public function getTags(): array
-    {
-        return $this->_tags ?? [];
     }
 
     /**
@@ -612,14 +573,12 @@ class Product extends Element
             'bcId' => Craft::t('bigcommerce', 'BigCommerce ID'),
             'createdAt' => Craft::t('bigcommerce', 'Created At'),
             'handle' => Craft::t('bigcommerce', 'Handle'),
+            'sku' => Craft::t('bigcommerce', 'SKU'),
             // TODO: Support images
             // 'images' => Craft::t('bigcommerce', 'Images'),
             'options' => Craft::t('bigcommerce', 'Options'),
             'productType' => Craft::t('bigcommerce', 'Product Type'),
-            'publishedAt' => Craft::t('bigcommerce', 'Published At'),
-            'publishedScope' => Craft::t('bigcommerce', 'Published Scope'),
             'bcStatus' => Craft::t('bigcommerce', 'BigCommerce Status'),
-            'tags' => Craft::t('bigcommerce', 'Tags'),
             'updatedAt' => Craft::t('bigcommerce', 'Updated At'),
             'variants' => Craft::t('bigcommerce', 'Variants'),
             'vendor' => Craft::t('bigcommerce', 'Vendor'),
@@ -636,7 +595,7 @@ class Product extends Element
             'bcId',
             'bcStatus',
             'handle',
-            'productType',
+            'sku'
         ];
     }
 
@@ -650,6 +609,12 @@ class Product extends Element
         $sortOptions['title'] = [
             'label' => Craft::t('app', 'Title'),
             'orderBy' => 'bigcommerce_productdata.title',
+            'defaultDir' => SORT_DESC,
+        ];
+
+        $sortOptions['sku'] = [
+            'label' => Craft::t('bigcommerce', 'SKU'),
+            'orderBy' => 'bigcommerce_productdata.sku',
             'defaultDir' => SORT_DESC,
         ];
 
@@ -681,6 +646,7 @@ class Product extends Element
             case 'bcStatus':
                 return $this->getBigCommerceStatusHtml();
             case 'bcId':
+            case 'sku':
                 return $this->$attribute;
             case 'options':
                 return collect($this->getOptions())->map(function ($option) {
@@ -688,13 +654,6 @@ class Product extends Element
                         'title' => $option['name'] . ' option values: ' . collect($option['values'])->join(', '),
                     ]);
                 })->join(',&nbsp;');
-            case 'tags':
-                return collect($this->getTags())->map(function ($tag) {
-                    return HtmlHelper::tag('div', $tag, [
-                        'style' => 'margin-bottom: 2px;',
-                        'class' => 'token',
-                    ]);
-                })->join('&nbsp;');
             case 'variants':
                 return collect($this->getVariants())->pluck('sku')->map(fn($title) => $title)->join(',&nbsp;');
             default:
@@ -785,17 +744,14 @@ class Product extends Element
         $labels = parent::attributeLabels();
 
         $labels['bcId'] = Craft::t('bigcommerce', 'BigCommerce ID');
+        $labels['sku'] = Craft::t('bigcommerce', 'SKU');
         $labels['bodyHtml'] = Craft::t('bigcommerce', 'Body HTML');
         $labels['createdAt'] = Craft::t('bigcommerce', 'Created at');
         $labels['handle'] = Craft::t('bigcommerce', 'Handle');
         $labels['images'] = Craft::t('bigcommerce', 'Images');
         $labels['options'] = Craft::t('bigcommerce', 'Options');
         $labels['productType'] = Craft::t('bigcommerce', 'Product Type');
-        $labels['publishedAt'] = Craft::t('bigcommerce', 'Published at');
-        $labels['publishedScope'] = Craft::t('bigcommerce', 'Published Scope');
-        $labels['tags'] = Craft::t('bigcommerce', 'Tags');
         $labels['bcStatus'] = Craft::t('bigcommerce', 'Status');
-        $labels['templateSuffix'] = Craft::t('bigcommerce', 'Template Suffix');
         $labels['updatedAt'] = Craft::t('bigcommerce', 'Updated at');
         $labels['variants'] = Craft::t('bigcommerce', 'Variants');
         $labels['vendor'] = Craft::t('bigcommerce', 'Vendor');

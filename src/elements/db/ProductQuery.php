@@ -30,8 +30,7 @@ class ProductQuery extends ElementQuery
     public mixed $bcStatus = null;
     public mixed $handle = null;
     public mixed $productType = null;
-    public mixed $publishedScope = null;
-    public mixed $tags = null;
+    public mixed $sku = null;
     public mixed $vendor = null;
     public mixed $images = null;
     public mixed $options = null;
@@ -91,11 +90,11 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the BigCommerce product tags
+     * Narrows the query results based on the BigCommerce product SKU
      */
-    public function tags(mixed $value): self
+    public function sku(mixed $value): self
     {
-        $this->tags = $value;
+        $this->sku = $value;
         return $this;
     }
 
@@ -197,10 +196,7 @@ class ProductQuery extends ElementQuery
             'bigcommerce_productdata.productType',
             'bigcommerce_productdata.bodyHtml',
             'bigcommerce_productdata.createdAt',
-            'bigcommerce_productdata.publishedAt',
-            'bigcommerce_productdata.publishedScope',
-            'bigcommerce_productdata.tags',
-            'bigcommerce_productdata.templateSuffix',
+            'bigcommerce_productdata.sku',
             'bigcommerce_productdata.updatedAt',
             'bigcommerce_productdata.vendor',
             'bigcommerce_productdata.metaFields',
@@ -225,12 +221,12 @@ class ProductQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('bigcommerce_productdata.handle', $this->handle));
         }
 
-        if (isset($this->vendor)) {
-            $this->subQuery->andWhere(Db::parseParam('bigcommerce_productdata.vendor', $this->vendor));
+        if (isset($this->sku)) {
+            $this->subQuery->andWhere(Db::parseParam('bigcommerce_productdata.sku', $this->sku));
         }
 
-        if (isset($this->tags)) {
-            $this->subQuery->andWhere(Db::parseParam('bigcommerce_productdata.tags', $this->tags));
+        if (isset($this->vendor)) {
+            $this->subQuery->andWhere(Db::parseParam('bigcommerce_productdata.vendor', $this->vendor));
         }
 
         return parent::beforePrepare();

@@ -21,8 +21,7 @@ class ProductCondition extends ElementCondition
             ProductTypeConditionRule::class,
             BigCommerceStatusConditionRule::class,
             VendorConditionRule::class,
-            HandleConditionRule::class,
-            TagsConditionRule::class,
+            HandleConditionRule::class
         ]);
     }
 }

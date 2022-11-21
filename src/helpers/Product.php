@@ -75,19 +75,6 @@ class Product
                 ->join(', ');
         }
 
-        // Tags
-        if (count($product->tags) > 0) {
-            $tags = collect($product->tags)
-                ->map(function($tag) {
-                    return Html::tag('span', $tag, [
-                        'class' => 'token',
-                    ]);
-                })
-                ->join(' ');
-
-            $meta[Craft::t('bigcommerce', 'Tags')] = Html::tag('div', $tags);
-        }
-
         // Variants
         if (count($product->getVariants()) > 0) {
             $meta[Craft::t('bigcommerce', 'Variants')] = collect($product->getVariants())
@@ -98,7 +85,6 @@ class Product
         $meta[Craft::t('bigcommerce', 'BigCommerce ID')] = Html::tag('code', $product->bcId);
 
         $meta[Craft::t('bigcommerce', 'Created at')] = $formatter->asDatetime($product->createdAt, Formatter::FORMAT_WIDTH_SHORT);
-        $meta[Craft::t('bigcommerce', 'Published at')] = $formatter->asDatetime($product->publishedAt, Formatter::FORMAT_WIDTH_SHORT);
         $meta[Craft::t('bigcommerce', 'Updated at')] = $formatter->asDatetime($product->updatedAt, Formatter::FORMAT_WIDTH_SHORT);
 
         $metadataHtml = Cp::metadataHtml($meta);

@@ -25,11 +25,8 @@ use yii\db\ActiveQueryInterface;
  * @property array $images
  * @property string $options
  * @property string $productType
- * @property string $publishedAt
- * @property string $publishedScope
  * @property string $bcStatus
- * @property string $tags
- * @property string $templateSuffix
+ * @property string $sku
  * @property string $updatedAt
  * @property array $variants
  * @property string $vendor
