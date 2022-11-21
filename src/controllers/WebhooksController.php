@@ -8,10 +8,10 @@
 namespace venveo\bigcommerce\controllers;
 
 use Craft;
-use craft\helpers\App;
-use venveo\bigcommerce\Plugin;
+use craft\helpers\Json;
 use craft\web\assets\admintable\AdminTableAsset;
 use craft\web\Controller;
+use venveo\bigcommerce\Plugin;
 use yii\web\ConflictHttpException;
 use yii\web\Response as YiiResponse;
 
@@ -33,25 +33,26 @@ class WebhooksController extends Controller
         $view = $this->getView();
         $view->registerAssetBundle(AdminTableAsset::class);
 
-        if (!$session = Plugin::getInstance()->getApi()->getSession()) {
-            throw new ConflictHttpException('No BigCommerce API session found, check credentials in settings.');
+        if (!$client = Plugin::getInstance()->getApi()->getClient()) {
+            throw new ConflictHttpException('No BigCommerce API client found, check credentials in settings.');
         }
+        $containsAllWebhooks = [];
 
-        $webhooks = collect(Webhook::all($session));
+        $webhooks = collect(Json::decode($client->getRestClient()->get('hooks')->getBody())['data'] ?? []);
 
         // If we don't have all webhooks needed for the current environment show the create button
 
-        $containsAllWebhooks = (
-            $webhooks->contains(function($item) {
-                return str_contains($item->address, Craft::$app->getRequest()->getHostName()) && $item->topic === 'products/create';
-            }) &&
-            $webhooks->contains(function($item) {
-                return str_contains($item->address, Craft::$app->getRequest()->getHostName()) && $item->topic === 'products/delete';
-            }) &&
-            $webhooks->contains(function($item) {
-                return str_contains($item->address, Craft::$app->getRequest()->getHostName()) && $item->topic === 'products/update';
-            })
-        );
+//        $containsAllWebhooks = (
+//            $webhooks->contains(function($item) {
+//                return str_contains($item->address, Craft::$app->getRequest()->getHostName()) && $item->topic === 'products/create';
+//            }) &&
+//            $webhooks->contains(function($item) {
+//                return str_contains($item->address, Craft::$app->getRequest()->getHostName()) && $item->topic === 'products/delete';
+//            }) &&
+//            $webhooks->contains(function($item) {
+//                return str_contains($item->address, Craft::$app->getRequest()->getHostName()) && $item->topic === 'products/update';
+//            })
+//        );
 
 
         return $this->renderTemplate('bigcommerce/webhooks/index', compact('webhooks', 'containsAllWebhooks'));
@@ -71,32 +72,42 @@ class WebhooksController extends Controller
 
         $pluginSettings = Plugin::getInstance()->getSettings();
 
-        if (!$session = Plugin::getInstance()->getApi()->getSession()) {
-            throw new ConflictHttpException('No BigCommerce API session found, check credentials in settings.');
+        if (!$client = Plugin::getInstance()->getApi()->getClient()) {
+            throw new ConflictHttpException('No BigCommerce API client found, check credentials in settings.');
         }
 
-        $responseCreate = Registry::register(
-            path: 'bigcommerce/webhook/handle',
-            topic: Topics::PRODUCTS_CREATE,
-            shop: App::parseEnv($pluginSettings->hostName),
-            accessToken: App::parseEnv($pluginSettings->accessToken)
-        );
-        $responseUpdate = Registry::register(
-            path: 'bigcommerce/webhook/handle',
-            topic: Topics::PRODUCTS_UPDATE,
-            shop: App::parseEnv($pluginSettings->hostName),
-            accessToken: App::parseEnv($pluginSettings->accessToken)
-        );
-        $responseDelete = Registry::register(
-            path: 'bigcommerce/webhook/handle',
-            topic: Topics::PRODUCTS_DELETE,
-            shop: App::parseEnv($pluginSettings->hostName),
-            accessToken: App::parseEnv($pluginSettings->accessToken)
-        );
+        $destination = $pluginSettings->getWebhookUrl();
 
-        if (!$responseCreate->isSuccess() || !$responseUpdate->isSuccess() || !$responseDelete->isSuccess()) {
-            Craft::error('Could not register webhooks with BigCommerce API.', __METHOD__);
-        }
+        $responseDelete = $client->getRestClient()->post('hooks', [
+            'json' => [
+                'scope' => 'store/product/deleted',
+                'destination' => $destination,
+                'is_active' => true,
+                'events_history_enabled' => true
+            ]
+        ]);
+
+        $responseCreate = $client->getRestClient()->post('hooks', [
+            'json' => [
+                'scope' => 'store/product/created',
+                'destination' => $destination,
+                'is_active' => true,
+                'events_history_enabled' => true
+            ]
+        ]);
+
+        $responseUpdate = $client->getRestClient()->post('hooks', [
+            'json' => [
+                'scope' => 'store/product/updated',
+                'destination' => $destination,
+                'is_active' => true,
+                'events_history_enabled' => true
+            ]
+        ]);
+
+//        if (!$responseCreate->isSuccess() || !$responseUpdate->isSuccess() || !$responseDelete->isSuccess()) {
+//            Craft::error('Could not register webhooks with BigCommerce API.', __METHOD__);
+//        }
 
         $this->setSuccessFlash(Craft::t('app', 'Webhooks registered.'));
         return $this->redirectToPostedUrl();
@@ -112,8 +123,8 @@ class WebhooksController extends Controller
         $this->requireAcceptsJson();
         $id = Craft::$app->getRequest()->getBodyParam('id');
 
-        if ($session = Plugin::getInstance()->getApi()->getSession()) {
-            Webhook::delete($session, $id);
+        if ($client = Plugin::getInstance()->getApi()->getClient()) {
+            $client->getRestClient()->delete('hooks/' . $id);
             return $this->asSuccess(Craft::t('bigcommerce', 'Webhook deleted'));
         }
 

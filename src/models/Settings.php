@@ -9,6 +9,7 @@ namespace venveo\bigcommerce\models;
 
 use Craft;
 use craft\base\Model;
+use craft\helpers\App;
 use craft\helpers\UrlHelper;
 use venveo\bigcommerce\elements\Product;
 
@@ -24,6 +25,7 @@ class Settings extends Model
     public string $clientSecret = '';
     public string $accessToken = '';
     public string $storeHash = '';
+    public string $webhookBaseUrl = '';
     public string $uriFormat = '';
     public string $template = '';
     private mixed $_productFieldLayout;
@@ -45,6 +47,7 @@ class Settings extends Model
             'clientSecret' => Craft::t('bigcommerce', 'BigCommerce API Secret Key'),
             'accessToken' => Craft::t('bigcommerce', 'BigCommerce Access Token'),
             'storeHash' => Craft::t('bigcommerce', 'BigCommerce Store ID'),
+            'webhookBaseUrl' => Craft::t('bigcommerce', 'Webhook Base URL'),
             'uriFormat' => Craft::t('bigcommerce', 'Product URI format'),
             'template' => Craft::t('bigcommerce', 'Product Template'),
         ];
@@ -76,6 +79,11 @@ class Settings extends Model
      */
     public function getWebhookUrl(): string
     {
-        return UrlHelper::actionUrl('bigcommerce/webhook/handle');
+        $path = 'bigcommerce/webhook/handle';
+        if ($this->webhookBaseUrl && $baseUrl = App::parseEnv($this->webhookBaseUrl)) {
+            $baseUrl = UrlHelper::url($baseUrl . '/' . $path);
+            return $baseUrl;
+        }
+        return UrlHelper::actionUrl($path);
     }
 }

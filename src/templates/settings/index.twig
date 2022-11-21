@@ -97,6 +97,16 @@
             suggestEnvVars: true,
         }) }}
 
+        {{ forms.autosuggestField({
+            label: 'Webhook Base URL Override'|t('bigcommerce'),
+            instructions: 'Override the base URL for webhooks. This is useful for local testing.'|t('bigcommerce'),
+            id: 'webhookBaseUrl',
+            name: 'settings[webhookBaseUrl]',
+            value: settings.webhookBaseUrl,
+            errors: settings.getErrors('webhookBaseUrl'),
+            suggestEnvVars: true,
+        }) }}
+
     </div>
 
 

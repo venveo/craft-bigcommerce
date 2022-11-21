@@ -30,8 +30,8 @@
     {% for webhook in webhooks %}
         {% set tableData = tableData|merge([{
             id: webhook.id,
-            title: webhook.topic,
-            address: webhook.address
+            title: webhook.scope,
+            address: webhook.destination
         }]) %}
     {% endfor %}
 
