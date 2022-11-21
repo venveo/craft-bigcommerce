@@ -696,7 +696,7 @@ class Product extends Element
                     ]);
                 })->join('&nbsp;');
             case 'variants':
-                return collect($this->getVariants())->pluck('title')->map(fn($title) => StringHelper::toTitleCase($title))->join(',&nbsp;');
+                return collect($this->getVariants())->pluck('sku')->map(fn($title) => $title)->join(',&nbsp;');
             default:
             {
                 return parent::tableAttributeHtml($attribute);

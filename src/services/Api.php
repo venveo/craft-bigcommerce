@@ -12,7 +12,7 @@ use BigCommerce\ApiV3\ResourceModels\Catalog\Product\Product;
 use Craft;
 use craft\base\Component;
 use craft\helpers\App;
-use craft\log\MonologTarget;
+use GuzzleHttp\Exception\ClientException;
 use venveo\bigcommerce\Plugin;
 use Shopify\Auth\FileSessionStorage;
 use Shopify\Auth\Session;
@@ -30,11 +30,6 @@ use Shopify\Context;
  */
 class Api extends Component
 {
-    /**
-//     * @var Session|null
-     */
-//    private ?Session $_session = null;
-
     /**
      * @var Client|null
      */
@@ -61,13 +56,21 @@ class Api extends Component
     }
 
     /**
-     * Retrieves "metafields" for the provided Shopify product ID.
+     * Retrieves "metafields" for the provided BigCommerce product ID.
      *
-     * @param int $id Shopify Product ID
+     * @param int $id BigCommerce Product ID
      */
     public function getMetafieldsByProductId(int $id): array
     {
-        return [];
+        try {
+            return $this->getClient()->catalog()->product($id)->metafields()->getAll()->getMetafields();
+        } catch (ClientException $e) {
+            if ($e->getResponse()->getStatusCode() === 404) {
+                return [];
+            }
+            throw $e;
+        }
+//        return [];
 //        return $this->getAll(ShopifyMetafield::class, [
 //            'metafield' => [
 //                'owner_id' => $id,
@@ -76,42 +79,10 @@ class Api extends Component
 //        ]);
     }
 
-    /**
-     * Shortcut for retrieving arbitrary API resources. A plain (parsed) response body is returned, so it’s the caller’s responsibility for unpacking it properly.
-     *
-     * @see Rest::get();
-     */
-    public function get($path, array $query = [])
-    {
-        $response = $this->getClient()->get($path, [], $query);
-
-        return $response->getDecodedBody();
+    public function getVariantsByProductId(int $id): array {
+        $variants = $this->getClient()->catalog()->product($id)->variants()->getAll()->getProductVariants();
+        return $variants;
     }
-//
-//    /**
-//     * Iteratively retrieves a paginated collection of API resources.
-//     *
-//     * @param string $type Stripe API resource class
-//     * @param array $params
-//     * @return ShopifyBaseResource[]
-//     */
-//    public function getAll(string $type, array $params = []): array
-//    {
-//        $resources = [];
-//
-//        // Force maximum page size:
-//        $params['limit'] = 250;
-//
-//        do {
-//            $resources = array_merge($resources, $type::all(
-//                $this->getSession(),
-//                [],
-//                $type::$NEXT_PAGE_QUERY ?: $params,
-//            ));
-//        } while ($type::$NEXT_PAGE_QUERY);
-//
-//        return $resources;
-//    }
 
     /**
      * Returns or sets up a Rest API client.
@@ -132,49 +103,4 @@ class Api extends Component
 
         return $this->_client;
     }
-
-//
-//    /**
-//     * Returns or initializes a context + session.
-//     *
-//     * @return Session|null
-//     * @throws \Shopify\Exception\MissingArgumentException
-//     */
-//    public function getSession(): ?Session
-//    {
-//        $pluginSettings = Plugin::getInstance()->getSettings();
-//
-//        if (
-//            $this->_session === null &&
-//            ($apiClientId = App::parseEnv($pluginSettings->clientId)) &&
-//            ($apiSecretKey = App::parseEnv($pluginSettings->clientSecret))
-//        ) {
-//            /** @var MonologTarget $webLogTarget */
-//            $webLogTarget = Craft::$app->getLog()->targets['web'];
-//            Context::initialize(
-//                apiKey: $apiKey,
-//                apiSecretKey: $apiSecretKey,
-//                scopes: ['write_products', 'read_products'],
-//                // This `hostName` is different from the `shop` value used when creating a Session!
-//                // Shopify wants a name for the host/environment that is initiating the connection.
-//                hostName: !Craft::$app->request->isConsoleRequest ? Craft::$app->getRequest()->getHostName() : 'localhost',
-//                sessionStorage: new FileSessionStorage(Craft::$app->getPath()->getStoragePath() . DIRECTORY_SEPARATOR . 'bigcommerce_api_sessions'),
-//                apiVersion: self::SHOPIFY_API_VERSION,
-//                isEmbeddedApp: false,
-//                logger: $webLogTarget->getLogger()
-//            );
-//
-////
-////            $this->_session = new Session(
-////                id: 'NA',
-////                shop: $storeHash,
-////                isOnline: false,
-////                state: 'NA'
-////            );
-//
-////            $this->_session->setAccessToken($accessToken); // this is the most important part of the authentication
-//        }
-//
-//        return $this->_session;
-//    }
 }

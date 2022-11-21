@@ -68,7 +68,7 @@ class Product
                     return Html::tag('span', $option['name'], [
                         'title' => Craft::t('bigcommerce', '{name} option values: {values}', [
                             'name' => $option['name'],
-                            'values' => join(', ', $option['values']),
+                            'values' => implode(', ', $option['values']),
                         ]),
                     ]);
                 })
@@ -91,7 +91,7 @@ class Product
         // Variants
         if (count($product->getVariants()) > 0) {
             $meta[Craft::t('bigcommerce', 'Variants')] = collect($product->getVariants())
-                ->pluck('title')
+                ->pluck('sku')
                 ->join(', ');
         }
 

@@ -57,10 +57,13 @@ class Products extends Component
         $products = $api->getAllProducts();
 
         foreach ($products as $product) {
-//            $metafields = $api->getMetafieldsByProductId($product->id);
-            // TODO:
-            $metafields = [];
-            $this->createOrUpdateProduct($product, $metafields);
+            $metafields = $api->getMetafieldsByProductId($product->id);
+            try {
+                $variants = $api->getVariantsByProductId($product->id);
+            } catch (\Throwable $throwable) {
+                $variants = [];
+            }
+            $this->createOrUpdateProduct($product, $metafields, $variants);
         }
 
         // Remove any products that are no longer in Shopify just in case.
@@ -83,8 +86,8 @@ class Products extends Component
 
         $product = $api->getProductByBcId($id);
         $metafields = $api->getMetafieldsByProductId($id);
-
-        $this->createOrUpdateProduct($product, $metafields);
+        $variants = $api->getVariantsByProductId($id);
+        $this->createOrUpdateProduct($product, $metafields, $variants);
     }
 
     /**
@@ -94,7 +97,7 @@ class Products extends Component
      * @param ShopifyMetafield[] $metafields
      * @return bool Whether or not the synchronization succeeded.
      */
-    public function createOrUpdateProduct(\BigCommerce\ApiV3\ResourceModels\Catalog\Product\Product $product, array $metafields = []): bool
+    public function createOrUpdateProduct(\BigCommerce\ApiV3\ResourceModels\Catalog\Product\Product $product, array $metafields = [], $variants = []): bool
     {
         // Expand any JSON-like properties:
 //        $metafields = MetafieldsHelper::unpack($metafields);
@@ -119,9 +122,9 @@ class Products extends Component
             'tags' => [], // Unused?
             'templateSuffix' => $product->layout_file, // Rename
             'updatedAt' => $product->date_modified,
-            'variants' => [],
+            'variants' => $variants,
             'vendor' => null, // ??
-            'metaFields' => [],
+            'metaFields' => $metafields,
             // This one is unusual, because we’re merging two different BigCommerce API resources:
 //            'metaFields' => $metafields,
         ];

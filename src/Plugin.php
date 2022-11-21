@@ -110,10 +110,6 @@ class Plugin extends BasePlugin
             }
         }
 
-        // Globally register bigcommerce webhooks registry event handlers
-//        Registry::addHandler(Topics::PRODUCTS_CREATE, new ProductHandler());
-//        Registry::addHandler(Topics::PRODUCTS_DELETE, new ProductHandler());
-//        Registry::addHandler(Topics::PRODUCTS_UPDATE, new ProductHandler());
     }
 
     /**
@@ -243,7 +239,6 @@ class Plugin extends BasePlugin
     {
         $ret = parent::getCpNavItem();
         $ret['label'] = Craft::t('bigcommerce', 'BigCommerce');
-
         $isConnected = true;
 //        $isConnected = Plugin::getInstance()->getApi()->getClient()->catalog()->summary()->get();
 
