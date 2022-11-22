@@ -21,7 +21,6 @@ use craft\services\Fields;
 use craft\services\Utilities;
 use venveo\bigcommerce\elements\Product;
 use venveo\bigcommerce\fields\Products as ProductsField;
-use venveo\bigcommerce\handlers\Product as ProductHandler;
 use venveo\bigcommerce\models\Settings;
 use venveo\bigcommerce\services\Api;
 use venveo\bigcommerce\services\Products;
@@ -109,7 +108,6 @@ class Plugin extends BasePlugin
                 $this->_registerSiteRoutes();
             }
         }
-
     }
 
     /**

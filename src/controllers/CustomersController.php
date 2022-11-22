@@ -8,6 +8,7 @@
 namespace venveo\bigcommerce\controllers;
 
 use craft\helpers\App;
+use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use Firebase\JWT\JWT;
 use venveo\bigcommerce\models\bigcommerce\CreateCustomerRequest;
@@ -45,8 +46,9 @@ class CustomersController extends Controller
         }
         try {
             $customer = $client->customers()->create([$request->createPayload()])->getCustomers()[0];
-            $token = Plugin::getInstance()->getApi()->getCustomerLoginToken($customer->id, channelId: static::CHANNEL_ID);
-            \Craft::dd($token);
+            $redirectUrl = $this->getPostedRedirectUrl();
+            $loginUrl = Plugin::getInstance()->getApi()->getCustomerLoginUrl($customer->id, UrlHelper::siteUrl($redirectUrl, ['bc_login' => 1]));
+            return $this->redirect($loginUrl);
         } catch (\Exception $e) {
             return $this->asModelFailure($request, 'Failed to create customer: '. $e->getMessage(), 'customer');
         }

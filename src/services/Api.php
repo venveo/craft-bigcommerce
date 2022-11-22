@@ -15,11 +15,11 @@ use craft\helpers\App;
 use Firebase\JWT\JWT;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
-use venveo\bigcommerce\Plugin;
 use Shopify\Auth\FileSessionStorage;
 use Shopify\Auth\Session;
 use Shopify\Clients\Rest;
 use Shopify\Context;
+use venveo\bigcommerce\Plugin;
 
 /**
  * BigCommerce API service.
@@ -81,7 +81,8 @@ class Api extends Component
 //        ]);
     }
 
-    public function getVariantsByProductId(int $id): array {
+    public function getVariantsByProductId(int $id): array
+    {
         $variants = $this->getClient()->catalog()->product($id)->variants()->getAll()->getProductVariants();
         return $variants;
     }
@@ -89,7 +90,8 @@ class Api extends Component
     /**
      * @throws GuzzleException
      */
-    public function getServerTime(): int {
+    public function getServerTime(): int
+    {
         $offset = Craft::$app->cache->get('bigcommerce_time_offset');
         if ($offset === null) {
             $offset = $this->updateServerTime();
@@ -134,15 +136,20 @@ class Api extends Component
         return $this->_client;
     }
 
-    public function getCustomerLoginToken(int $id, $redirectUrl = null, $requestIp = null, $channelId = null): string
-    {
+    public function getCustomerLoginToken(
+        int $customerId,
+        $redirectUrl = null,
+        $requestIp = null,
+        $channelId = null
+    ): string {
         $settings = Plugin::getInstance()->getSettings();
         $jwtPayload = [
             'iss' => App::parseEnv($settings->clientId),
             'iat' => Plugin::getInstance()->getApi()->getServerTime(),
-            'jti'         => bin2hex( random_bytes( 32 ) ),
+            'jti' => bin2hex(random_bytes(32)),
+            'operation' => 'customer_login',
             'store_hash' => App::parseEnv($settings->storeHash),
-            'customer_id' => $id
+            'customer_id' => $customerId
         ];
 
         if (!empty($redirectUrl)) {
@@ -159,5 +166,15 @@ class Api extends Component
 
         $secret = App::parseEnv($settings->clientSecret);
         return JWT::encode($jwtPayload, $secret, 'HS256');
+    }
+
+    public function getCustomerLoginUrl(
+        int $customerId,
+        $redirectUrl = null,
+        $requestIp = null,
+        $channelId = null
+    ): string {
+        $jwt = $this->getCustomerLoginToken($customerId, $redirectUrl, $requestIp, $channelId);
+        return Plugin::getInstance()->getStore()->getUrl('login/token/'. $jwt);
     }
 }

@@ -4,21 +4,21 @@ namespace venveo\bigcommerce\models\bigcommerce;
 use venveo\bigcommerce\validators\CustomerExistsValidator;
 
 class CreateCustomerRequest extends BigCommerceRequest {
-    public ?int $id;
-    public ?string $email;
-    public ?string $first_name;
-    public ?string $last_name;
-    public ?string $company;
-    public ?string $password;
-    public ?int $customer_group_id;
-    public ?array $channel_ids;
-    public ?string $verifyPassword;
+    public ?int $id = null;
+    public ?string $email = null;
+    public ?string $first_name = null;
+    public ?string $last_name = null;
+    public ?string $company = null;
+    public ?string $password = null;
+    public ?int $customer_group_id = null;
+    public ?array $channel_ids = null;
+    public ?string $verifyPassword = null;
 
     public const SCENARIO_VERIFY_ACCOUNT = 'SCENARIO_VERIFY_ACCOUNT';
 
     public function createPayload(): array|string
     {
-        return [
+        return array_filter([
             'id' => $this->id,
             'email' => $this->email,
             'first_name' => $this->first_name,
@@ -30,7 +30,7 @@ class CreateCustomerRequest extends BigCommerceRequest {
             ],
             'channel_ids' => $this->channel_ids,
             'customer_group_id' => $this->customer_group_id
-        ];
+        ]);
     }
 
     public function rules(): array
