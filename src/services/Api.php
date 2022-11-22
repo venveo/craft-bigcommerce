@@ -12,7 +12,9 @@ use BigCommerce\ApiV3\ResourceModels\Catalog\Product\Product;
 use Craft;
 use craft\base\Component;
 use craft\helpers\App;
+use Firebase\JWT\JWT;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\GuzzleException;
 use venveo\bigcommerce\Plugin;
 use Shopify\Auth\FileSessionStorage;
 use Shopify\Auth\Session;
@@ -85,6 +87,34 @@ class Api extends Component
     }
 
     /**
+     * @throws GuzzleException
+     */
+    public function getServerTime(): int {
+        $offset = Craft::$app->cache->get('bigcommerce_time_offset');
+        if ($offset === null) {
+            $offset = $this->updateServerTime();
+        }
+        return time() + $offset;
+    }
+
+    /**
+     * @return int server time offset
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateServerTime(): int
+    {
+        try {
+            $apiTime = $this->getClient()->getRestClient()->get('/time')->getBody()->getContents();
+        } catch (\Exception $e) {
+            $apiTime = time();
+        }
+        $now = time();
+        $offset = $apiTime - $now;
+        Craft::$app->cache->set('bigcommerce_time_offset', $offset);
+        return $offset;
+    }
+
+    /**
      * Returns or sets up a Rest API client.
      *
      * @return Client
@@ -102,5 +132,32 @@ class Api extends Component
         }
 
         return $this->_client;
+    }
+
+    public function getCustomerLoginToken(int $id, $redirectUrl = null, $requestIp = null, $channelId = null): string
+    {
+        $settings = Plugin::getInstance()->getSettings();
+        $jwtPayload = [
+            'iss' => App::parseEnv($settings->clientId),
+            'iat' => Plugin::getInstance()->getApi()->getServerTime(),
+            'jti'         => bin2hex( random_bytes( 32 ) ),
+            'store_hash' => App::parseEnv($settings->storeHash),
+            'customer_id' => $id
+        ];
+
+        if (!empty($redirectUrl)) {
+            $jwtPayload['redirect_to'] = $redirectUrl;
+        }
+
+        if (!empty($requestIp)) {
+            $jwtPayload['request_ip'] = $requestIp;
+        }
+
+        if (!empty($channelId)) {
+            $jwtPayload['channel_id'] = (int)$channelId;
+        }
+
+        $secret = App::parseEnv($settings->clientSecret);
+        return JWT::encode($jwtPayload, $secret, 'HS256');
     }
 }

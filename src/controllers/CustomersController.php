@@ -7,50 +7,49 @@
 
 namespace venveo\bigcommerce\controllers;
 
+use craft\helpers\App;
 use craft\web\Controller;
+use Firebase\JWT\JWT;
+use venveo\bigcommerce\models\bigcommerce\CreateCustomerRequest;
 use venveo\bigcommerce\Plugin;
+use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
 
 class CustomersController extends Controller
 {
     public $enableCsrfValidation = true;
     public array|bool|int $allowAnonymous = ['register'];
 
-    public function actionRegister()
+    public const CHANNEL_ID = 1;
+
+    /**
+     * @throws InvalidConfigException
+     * @throws BadRequestHttpException
+     */
+    public function actionRegister(): ?\yii\web\Response
     {
         $this->requirePostRequest();
         $client = Plugin::getInstance()->getApi()->getClient();
-        try {
-            $payload = [
-                'email' => $this->request->getRequiredBodyParam('email'),
-                'first_name' => $this->request->getRequiredBodyParam('first_name'),
-                'last_name' => $this->request->getRequiredBodyParam('last_name'),
-                'company' => $this->request->getBodyParam('company'),
-                'authentication' => [
-                    'force_password_reset' => false,
-                    'new_password' => $this->request->getRequiredBodyParam('password')
-                ],
-                'channel_ids' => [1],
-                'customer_group_id' => 2 // Website Signups
-            ];
-        } catch(\Exception $exception) {
-            return $this->asFailure('Missing required field.');
-        }
+        $request = new CreateCustomerRequest();
+        $request->attributes = \Craft::$app->request->getBodyParams();
+        $request->channel_ids = [static::CHANNEL_ID];
+        $request->customer_group_id = 2;
 
-        $existingCustomer = null;
+        if (!$request->validate()) {
+            return $this->asModelFailure($request, null, 'customer');
+        }
+        // Everything else passed, now we can check with the BC API to see if the account exists.
+        $request->setScenario(CreateCustomerRequest::SCENARIO_VERIFY_ACCOUNT);
+        if (!$request->validate()) {
+            return $this->asModelFailure($request, null, 'customer');
+        }
         try {
-            $existingCustomer = $client->customers()->getByEmail($payload['email']) ?? null;
+            $customer = $client->customers()->create([$request->createPayload()])->getCustomers()[0];
+            $token = Plugin::getInstance()->getApi()->getCustomerLoginToken($customer->id, channelId: static::CHANNEL_ID);
+            \Craft::dd($token);
         } catch (\Exception $e) {
+            return $this->asModelFailure($request, 'Failed to create customer: '. $e->getMessage(), 'customer');
         }
-
-        if ($existingCustomer) {
-            return $this->asFailure('User already exists');
-        }
-
-        try {
-            $customer = $client->customers()->create([$payload])->getCustomers()[0];
-        } catch (\Exception $e) {
-            return $this->asFailure('Failed to create customer');
-        }
-
+        return $this->asSuccess('You have been successfully logged in');
     }
 }
