@@ -24,12 +24,12 @@ class BigCommerceProductSyncEvent extends CancelableEvent
     public ProductElement $element;
 
 //    /**
-//     * @var Product Source Shopify API resource.
+//     * @var Product Source BigCommerce API resource.
 //     */
     public BcProduct $source;
 
     /**
-     * @var array List of Shopify metafields for the product.
+     * @var array List of BigCommerce metafields for the product.
      */
     public array $metafields;
 }

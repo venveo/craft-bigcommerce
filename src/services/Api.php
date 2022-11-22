@@ -15,10 +15,6 @@ use craft\helpers\App;
 use Firebase\JWT\JWT;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
-use Shopify\Auth\FileSessionStorage;
-use Shopify\Auth\Session;
-use Shopify\Clients\Rest;
-use Shopify\Context;
 use venveo\bigcommerce\Plugin;
 
 /**
@@ -48,7 +44,7 @@ class Api extends Component
     }
 
     /**
-     * Retrieve a single product by its Shopify ID.
+     * Retrieve a single product by its BigCommerce ID.
      *
      * @return Product
      */
@@ -73,7 +69,7 @@ class Api extends Component
             throw $e;
         }
 //        return [];
-//        return $this->getAll(ShopifyMetafield::class, [
+//        return $this->getAll(Metafield::class, [
 //            'metafield' => [
 //                'owner_id' => $id,
 //                'owner_resource' => 'product',

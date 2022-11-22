@@ -7,9 +7,10 @@
 
 namespace venveo\bigcommerce\helpers;
 
+use BigCommerce\ApiV3\ResourceModels\Metafield;
 use craft\helpers\Json;
-//use Shopify\Rest\Admin2022_10\Metafield as ShopifyMetafield;
 
+// TODO: This file needs to be updated for BigCommerce
 class Metafields
 {
     /**
@@ -24,16 +25,11 @@ class Metafields
         'volume',
     ];
 
-    /**
-     * @var string Prefix given to metafield types that are configured to accept multiple values and will be encoded as JSON.
-     * @see https://bigcommerce.dev/apps/metafields/types#list-types
-     */
-    public const LIST_PREFIX = 'list';
 
     /**
-     * Unpacks metadata from the Shopify API.
+     * Unpacks metadata from the BigCommerce API.
      *
-     * @param ShopifyMetafield[] $fields
+     * @param Metafield[] $fields
      * @return array
      */
     public static function unpack(array $fields): array
@@ -50,7 +46,7 @@ class Metafields
     /**
      * Turn a metafield API resource into a simple value, based on its type.
      */
-    public static function decode(ShopifyMetafield $field)
+    public static function decode(Metafield $field)
     {
         $value = $field->value;
 

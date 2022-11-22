@@ -2,6 +2,8 @@
 
 namespace venveo\bigcommerce\services;
 
+use BigCommerce\ApiV3\ResourceModels\Catalog\Product\Product as BigCommerceProduct;
+use BigCommerce\ApiV3\ResourceModels\Metafield;
 use Craft;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
@@ -12,7 +14,7 @@ use venveo\bigcommerce\Plugin;
 use venveo\bigcommerce\records\ProductData as ProductDataRecord;
 
 /**
- * Shopify Products service.
+ * BigCommerce Products service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
@@ -23,7 +25,7 @@ use venveo\bigcommerce\records\ProductData as ProductDataRecord;
 class Products extends Component
 {
     /**
-     * @event BigCommerceProductSyncEvent Event triggered just before Shopify product data is saved to a product element.
+     * @event BigCommerceProductSyncEvent Event triggered just before BigCommerce product data is saved to a product element.
      *
      * ---
      *
@@ -66,7 +68,7 @@ class Products extends Component
             $this->createOrUpdateProduct($product, $metafields, $variants);
         }
 
-        // Remove any products that are no longer in Shopify just in case.
+        // Remove any products that are no longer in BigCommerce just in case.
         $bcIds = ArrayHelper::getColumn($products, 'id');
         $deletableProductElements = ProductElement::find()->bcId(['not', $bcIds])->all();
 
@@ -93,11 +95,11 @@ class Products extends Component
     /**
      * This takes the bigcommerce data from the REST API and creates or updates a product element.
      *
-     * @param ShopifyProduct $product
-     * @param ShopifyMetafield[] $metafields
+     * @param BigCommerceProduct $product
+     * @param Metafield[] $metafields
      * @return bool Whether or not the synchronization succeeded.
      */
-    public function createOrUpdateProduct(\BigCommerce\ApiV3\ResourceModels\Catalog\Product\Product $product, array $metafields = [], $variants = []): bool
+    public function createOrUpdateProduct(BigCommerceProduct $product, array $metafields = [], $variants = []): bool
     {
         // Expand any JSON-like properties:
 //        $metafields = MetafieldsHelper::unpack($metafields);

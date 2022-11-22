@@ -96,7 +96,7 @@ class Product
             ],
         ]);
 
-        // This is the date updated in the database which represents the last time it was updated from a Shopify webhook or sync.
+        // This is the date updated in the database which represents the last time it was updated from a BigCommerce webhook or sync.
         /** @var ProductData $productData */
         $productData = ProductData::find()->where(['bcId' => $product->bcId])->one();
         $dateUpdated = DateTimeHelper::toDateTime($productData->dateUpdated);
