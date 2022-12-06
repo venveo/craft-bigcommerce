@@ -647,7 +647,7 @@ class Product extends Element
                 return $this->getBigCommerceStatusHtml();
             case 'bcId':
             case 'sku':
-                return $this->$attribute;
+                return $this->sku ?? '';
             case 'options':
                 return collect($this->getOptions())->map(function($option) {
                     return HtmlHelper::tag('span', $option['name'], [
