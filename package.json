@@ -1,5 +1,5 @@
 {
-  "name": "@craftcms/shopify",
+  "name": "@venveo/bigcommerce",
   "private": true,
   "main": "webpack.config.js",
   "scripts": {
