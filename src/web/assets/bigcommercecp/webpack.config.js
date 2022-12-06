@@ -6,7 +6,7 @@ module.exports = getConfig({
   context: __dirname,
   config: {
     entry: {
-      bigcommercecp: "./bigcommercecp.js",
+      bigcommercecp: './bigcommercecp.js',
     },
   },
 });

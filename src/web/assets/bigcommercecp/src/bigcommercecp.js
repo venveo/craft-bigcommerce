@@ -1,5 +1,5 @@
 // SCSS
-import "./scss/bigcommercecp.scss";
+import './scss/bigcommercecp.scss';
 
 // JS
-import "./js/bigcommercecp";
+import './js/bigcommercecp';
