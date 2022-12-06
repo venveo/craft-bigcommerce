@@ -649,7 +649,7 @@ class Product extends Element
             case 'sku':
                 return $this->$attribute;
             case 'options':
-                return collect($this->getOptions())->map(function ($option) {
+                return collect($this->getOptions())->map(function($option) {
                     return HtmlHelper::tag('span', $option['name'], [
                         'title' => $option['name'] . ' option values: ' . collect($option['values'])->join(', '),
                     ]);

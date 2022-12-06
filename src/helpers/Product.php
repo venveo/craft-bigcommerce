@@ -11,7 +11,6 @@ use Craft;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
-use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\i18n\Formatter;
 use venveo\bigcommerce\elements\Product as ProductElement;
@@ -82,7 +81,7 @@ class Product
                 ->join(', ');
         }
 
-        $meta[Craft::t('bigcommerce', 'BigCommerce ID')] = Html::tag('code', $product->bcId);
+        $meta[Craft::t('bigcommerce', 'BigCommerce ID')] = Html::tag('code', (string)$product->bcId);
 
         $meta[Craft::t('bigcommerce', 'Created at')] = $formatter->asDatetime($product->createdAt, Formatter::FORMAT_WIDTH_SHORT);
         $meta[Craft::t('bigcommerce', 'Updated at')] = $formatter->asDatetime($product->updatedAt, Formatter::FORMAT_WIDTH_SHORT);

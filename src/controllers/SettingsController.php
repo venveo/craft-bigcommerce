@@ -12,7 +12,7 @@ use venveo\bigcommerce\elements\Product;
 use venveo\bigcommerce\models\Settings;
 use venveo\bigcommerce\Plugin;
 use craft\web\Controller;
-use craft\web\Response;
+use yii\web\Response;
 
 /**
  * The SettingsController handles modifying and saving the general settings.
