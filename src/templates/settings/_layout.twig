@@ -2,14 +2,14 @@
 {% extends "_layouts/cp" %}
 {% set selectedSubnavItem = 'settings' %}
 
-{% set title = "Settings"|t('shopify') %}
+{% set title = "Settings"|t('BigCommerce') %}
 
 {% set navItems = {} %}
 
 {% if currentUser.admin %}
     {% set navItems = {
-        'general': { title: "General"|t('shopify') },
-        'products': { title: "Products"|t('shopify') },
+        'general': { title: "General"|t('bigcommerce') },
+        'products': { title: "Products"|t('bigcommerce') },
     } %}
 {% endif %}
 

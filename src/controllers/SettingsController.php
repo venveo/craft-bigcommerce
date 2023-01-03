@@ -75,7 +75,7 @@ class SettingsController extends Controller
         $projectConfig = Craft::$app->getProjectConfig();
         $uid = StringHelper::UUID();
         $fieldLayoutConfig = $fieldLayout->getConfig();
-        $projectConfig->set(Plugin::PC_PATH_PRODUCT_FIELD_LAYOUTS, [$uid => $fieldLayoutConfig], 'Save the Shopify product field layout');
+        $projectConfig->set(Plugin::PC_PATH_PRODUCT_FIELD_LAYOUTS, [$uid => $fieldLayoutConfig], 'Save the BigCommerce product field layout');
 
         $pluginSettings->setProductFieldLayout($fieldLayout);
 
