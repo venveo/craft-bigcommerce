@@ -62,10 +62,12 @@ class Products extends Component
             $metafields = $api->getMetafieldsByProductId($product->id);
             try {
                 $variants = $api->getVariantsByProductId($product->id);
+                $options = $api->getOptionsByProductId($product->id);
             } catch (\Throwable $throwable) {
                 $variants = [];
+                $options = [];
             }
-            $this->createOrUpdateProduct($product, $metafields, $variants);
+            $this->createOrUpdateProduct($product, $metafields, $variants, $options);
         }
 
         // Remove any products that are no longer in BigCommerce just in case.
@@ -89,7 +91,8 @@ class Products extends Component
         $product = $api->getProductByBcId($id);
         $metafields = $api->getMetafieldsByProductId($id);
         $variants = $api->getVariantsByProductId($id);
-        $this->createOrUpdateProduct($product, $metafields, $variants);
+        $options = $api->getOptionsByProductId($id);
+        $this->createOrUpdateProduct($product, $metafields, $variants, $options);
     }
 
     /**
@@ -99,7 +102,7 @@ class Products extends Component
      * @param Metafield[] $metafields
      * @return bool Whether or not the synchronization succeeded.
      */
-    public function createOrUpdateProduct(BigCommerceProduct $product, array $metafields = [], $variants = []): bool
+    public function createOrUpdateProduct(BigCommerceProduct $product, array $metafields = [], $variants = [], $options = []): bool
     {
         // Expand any JSON-like properties:
 //        $metafields = MetafieldsHelper::unpack($metafields);
@@ -117,7 +120,7 @@ class Products extends Component
             'createdAt' => $product->date_created,
             'handle' => $handle, // ??
             'images' => [], // ??
-            'options' => [], // ??
+            'options' => $options, // ??
             'productType' => $product->type,
             'bcStatus' => $product->is_visible ? ProductElement::BC_STATUS_ACTIVE : ProductElement::BC_STATUS_DRAFT,
             'updatedAt' => $product->date_modified,

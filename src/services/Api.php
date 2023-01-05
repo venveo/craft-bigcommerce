@@ -83,6 +83,12 @@ class Api extends Component
         return $variants;
     }
 
+    public function getOptionsByProductId(int $id): array
+    {
+        $options = $this->getClient()->catalog()->product($id)->options()->getAll()->getOptions();
+        return $options;
+    }
+
     /**
      * @throws GuzzleException
      */
