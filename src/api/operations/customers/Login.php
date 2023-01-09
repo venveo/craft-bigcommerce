@@ -15,11 +15,11 @@ mutation login($email: String!, $password: String!) {
 }
 EOD;
 
-    public static function login($email, $password): bool
+    public static function login($email, $password, $setCookies = true): bool
     {
-        $response = ApiHelper::sendGraphQLRequest(static::LOGIN_MUTATION, ['email' => $email, 'password' => $password]);
+        $response = ApiHelper::sendGraphQLRequest(static::LOGIN_MUTATION, compact('email', 'password'));
         $headers = $response->getHeaders();
-        if (\Craft::$app->request instanceof \yii\web\Request && isset($headers['set-cookie'])) {
+        if ($setCookies && \Craft::$app->request instanceof \yii\web\Request && isset($headers['set-cookie'])) {
             $cookies = array_map(function ($rawCookie) {
                 $cookieInfo = explode('=', $rawCookie, 2);
                 $cookieDetails = explode(';', $cookieInfo[1]);
