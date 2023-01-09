@@ -1,15 +1,14 @@
 <p align="center"><img src="./src/icon.svg" width="100" height="100" alt="Shopify icon"></p>
 
-<h1 align="center">Shopify for Craft CMS</h1>
+<h1 align="center">BigCommerce for Craft CMS</h1>
 
-Build a content-driven storefront by synchronizing [Shopify](https://shopify.com) products into [Craft CMS](https://craftcms.com/).
+Build a content-driven storefront by BigCommerce [Shopify](https://bigcommerce.com) products into [Craft CMS](https://craftcms.com/).
 
 ## Topics
 
-- :package: [Installation](#installation): Set up the plugin and get connected to Shopify.
+- :package: [Installation](#installation): Set up the plugin and get connected to BigCommerce.
 - :card_file_box: [Working with Products](#product-element): Learn what kind of data is available and how to access it.
 - :bookmark_tabs: [Templating](#templating): Tips and tricks for using products in Twig.
-- :leaves: [Upgrading](#migrating-from-v2x): Take advantage of new features and performance improvements.
 - :telescope: [Advanced Features](#going-further): Go further with your integration.
 
 ## Installation
@@ -836,3 +835,8 @@ return [
   ],
 ];
 ```
+
+
+### Acknowledgements
+
+- Very helpful reference repository: https://github.com/labbydev/fingerprint
