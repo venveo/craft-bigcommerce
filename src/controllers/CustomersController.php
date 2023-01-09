@@ -19,7 +19,7 @@ use yii\web\BadRequestHttpException;
 class CustomersController extends Controller
 {
     public $enableCsrfValidation = true;
-    public array|bool|int $allowAnonymous = ['register', 'login'];
+    public array|bool|int $allowAnonymous = ['register', 'login', 'save-profile'];
 
     public const CHANNEL_ID = 1;
 
