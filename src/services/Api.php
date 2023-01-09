@@ -137,46 +137,4 @@ class Api extends Component
 
         return $this->_client;
     }
-
-    public function getCustomerLoginToken(
-        int $customerId,
-        $redirectUrl = null,
-        $requestIp = null,
-        $channelId = null
-    ): string {
-        $settings = Plugin::getInstance()->getSettings();
-        $jwtPayload = [
-            'iss' => App::parseEnv($settings->clientId),
-            'iat' => Plugin::getInstance()->getApi()->getServerTime(),
-            'jti' => bin2hex(random_bytes(32)),
-            'operation' => 'customer_login',
-            'store_hash' => App::parseEnv($settings->storeHash),
-            'customer_id' => $customerId
-        ];
-
-        if (!empty($redirectUrl)) {
-            $jwtPayload['redirect_to'] = $redirectUrl;
-        }
-
-        if (!empty($requestIp)) {
-            $jwtPayload['request_ip'] = $requestIp;
-        }
-
-        if (!empty($channelId)) {
-            $jwtPayload['channel_id'] = (int)$channelId;
-        }
-
-        $secret = App::parseEnv($settings->clientSecret);
-        return JWT::encode($jwtPayload, $secret, 'HS256');
-    }
-
-    public function getCustomerLoginUrl(
-        int $customerId,
-        $redirectUrl = null,
-        $requestIp = null,
-        $channelId = null
-    ): string {
-        $jwt = $this->getCustomerLoginToken($customerId, $redirectUrl, $requestIp, $channelId);
-        return Plugin::getInstance()->getStore()->getUrl('login/token/'. $jwt);
-    }
 }

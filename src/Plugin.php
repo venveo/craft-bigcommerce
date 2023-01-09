@@ -29,6 +29,7 @@ use venveo\bigcommerce\elements\Product;
 use venveo\bigcommerce\fields\Products as ProductsField;
 use venveo\bigcommerce\models\Settings;
 use venveo\bigcommerce\services\Api;
+use venveo\bigcommerce\services\Customers;
 use venveo\bigcommerce\services\Products;
 use venveo\bigcommerce\services\Store;
 use venveo\bigcommerce\utilities\Sync;
@@ -77,6 +78,7 @@ class Plugin extends BasePlugin
                 'api' => ['class' => Api::class],
                 'products' => ['class' => Products::class],
                 'store' => ['class' => Store::class],
+                'customers' => ['class' => Customers::class],
             ],
         ];
     }

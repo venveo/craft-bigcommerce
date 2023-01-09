@@ -9,6 +9,7 @@ namespace venveo\bigcommerce\controllers;
 
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
+use venveo\bigcommerce\api\operations\customers\GetCurrentCustomer;
 use venveo\bigcommerce\api\operations\customers\Login;
 use venveo\bigcommerce\models\bigcommerce\CreateCustomerRequest;
 use venveo\bigcommerce\Plugin;
@@ -65,5 +66,38 @@ class CustomersController extends Controller
             return $this->asModelFailure($request, 'Failed to create customer: ' . $e->getMessage(), 'customer');
         }
         return $this->asSuccess('You have been successfully logged in');
+    }
+
+    public function actionSaveProfile() {
+        $this->requirePostRequest();
+        $currentCustomer = GetCurrentCustomer::getCurrentCustomer();
+        $customerId = $currentCustomer['entityId'] ?? null;
+        if (!$currentCustomer || !$customerId) {
+            $this->response->setStatusCode(400);
+            return $this->asFailure('You are not authorized to perform that action');
+        }
+        $customer = Plugin::getInstance()->getApi()->getClient()->customers()->getById($customerId);
+        if (!$customer) {
+            $this->response->setStatusCode(500);
+            return $this->asFailure('Your customer record could not be located. Please sign out and sign back in.');
+        }
+        $firstName = $this->request->getBodyParam('firstName');
+        $lastName = $this->request->getBodyParam('lastName');
+        $email = $this->request->getBodyParam('email');
+        $company = $this->request->getBodyParam('company');
+        $phone = $this->request->getBodyParam('phone');
+        $customer->first_name = $firstName;
+        $customer->last_name = $lastName;
+        $customer->email = $email;
+        $customer->company = $company;
+        $customer->phone = $phone;
+        try {
+            $resp = Plugin::getInstance()->getApi()->getClient()->customers()->update([$customer]);
+        } catch (\Exception $exception) {
+            \Craft::error($exception->getMessage());
+            \Craft::error($exception->getTrace());
+            return $this->asFailure("Sorry, we couldn't save your profile. Please try again.");
+        }
+        return $this->asSuccess('Profile saved');
     }
 }

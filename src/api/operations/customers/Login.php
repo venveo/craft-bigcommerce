@@ -25,7 +25,7 @@ EOD;
                 $cookieDetails = explode(';', $cookieInfo[1]);
                 $cookie = new Cookie();
                 $cookie->name = $cookieInfo[0];
-                $cookie->value = $cookieDetails[1];
+                $cookie->value = $cookieDetails[0];
                 $cookie->secure = true;
                 $cookie->httpOnly = true;
                 $cookie->sameSite = Cookie::SAME_SITE_LAX;
@@ -37,9 +37,6 @@ EOD;
             }
         }
         $responseContents = json_decode($response->getBody()->getContents(), true);
-        if (isset($responseContents['data']['login']['result']) && $responseContents['data']['login']['result'] === "success") {
-            return true;
-        }
-        return false;
+        return isset($responseContents['data']['login']['result']) && $responseContents['data']['login']['result'] === "success";
     }
 }
