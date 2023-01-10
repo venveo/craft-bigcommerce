@@ -7,6 +7,7 @@ use BigCommerce\ApiV3\ResourceModels\Metafield;
 use Craft;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use venveo\bigcommerce\elements\Product as ProductElement;
 use venveo\bigcommerce\events\BigCommerceProductSyncEvent;
@@ -203,5 +204,10 @@ class Products extends Component
     public function getProductIdByBcId($id): int
     {
         return ProductElement::find()->bcId($id)->one()->id;
+    }
+
+    public function getLiveProductDetailsByProductId($id) {
+        $data = \venveo\bigcommerce\api\operations\Products::getProductInformationById($id)->getBody()->getContents();
+        return Json::decodeIfJson($data);
     }
 }

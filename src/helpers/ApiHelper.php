@@ -48,9 +48,9 @@ class ApiHelper
         $options = [
             'json' => $body
         ];
-        if ($asCustomer && $cookie = \Craft::$app->request->getCookies()->get('SHOP_TOKEN')) {
-            if ($cookie->value) {
-                $headers['cookie'] = 'SHOP_TOKEN=' . $cookie->value;
+        if ($asCustomer && $cookie = \Craft::$app->request->getCookies()?->get('SHOP_TOKEN')?->value) {
+            if ($cookie) {
+                $headers['cookie'] = 'SHOP_TOKEN=' . $cookie;
             }
         }
         $headers['Authorization'] = 'Bearer ' . $apiToken;
