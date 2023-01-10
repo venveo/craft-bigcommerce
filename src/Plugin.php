@@ -28,6 +28,7 @@ use craft\services\Utilities;
 use venveo\bigcommerce\elements\Product;
 use venveo\bigcommerce\fields\Products as ProductsField;
 use venveo\bigcommerce\models\Settings;
+use venveo\bigcommerce\services\Addresses;
 use venveo\bigcommerce\services\Api;
 use venveo\bigcommerce\services\Cart;
 use venveo\bigcommerce\services\Customers;
@@ -81,6 +82,7 @@ class Plugin extends BasePlugin
                 'store' => ['class' => Store::class],
                 'customers' => ['class' => Customers::class],
                 'cart' => ['class' => Cart::class],
+                'addresses' => ['class' => Addresses::class],
             ],
         ];
     }
@@ -156,6 +158,11 @@ class Plugin extends BasePlugin
     public function getApi(): Api
     {
         return $this->get('api');
+    }
+
+    public function getAddresses(): Addresses
+    {
+        return $this->get('addresses');
     }
 
     /**
