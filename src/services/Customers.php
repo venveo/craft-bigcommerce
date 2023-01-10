@@ -8,12 +8,24 @@
 namespace venveo\bigcommerce\services;
 
 use craft\base\Component;
-use venveo\bigcommerce\api\operations\customers\GetCurrentCustomer;
+use venveo\bigcommerce\api\operations\Customer;
 
 class Customers extends Component
 {
+    /**
+     * @return int|null
+     */
+    public function getCurrentCustomerId(): ?int
+    {
+        return Customer::getCurrentCustomerId();
+    }
+
+    /**
+     * @return \BigCommerce\ApiV3\ResourceModels\Customer\Customer|null
+     */
     public function getCurrentCustomer()
     {
-        return GetCurrentCustomer::getCurrentCustomer();
+
+        return Customer::getCurrentCustomer();
     }
 }

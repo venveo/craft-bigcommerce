@@ -8,15 +8,15 @@
 namespace venveo\bigcommerce\controllers;
 
 use craft\helpers\UrlHelper;
-use craft\web\Controller;
-use venveo\bigcommerce\api\operations\customers\GetCurrentCustomer;
-use venveo\bigcommerce\api\operations\customers\Login;
+use venveo\bigcommerce\api\operations\Customer;
+use venveo\bigcommerce\base\BigCommerceApiController;
 use venveo\bigcommerce\models\bigcommerce\CreateCustomerRequest;
 use venveo\bigcommerce\Plugin;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 
-class CustomersController extends Controller
+class CustomersController extends BigCommerceApiController
 {
     public $enableCsrfValidation = true;
     public array|bool|int $allowAnonymous = ['register', 'login', 'save-profile'];
@@ -26,9 +26,13 @@ class CustomersController extends Controller
     public function actionLogin()
     {
         $this->requirePostRequest();
+        $currentCustomer = Customer::getCurrentCustomerId();
+        if ($currentCustomer) {
+            return $this->redirectToPostedUrl(null, UrlHelper::url('/store/account'));
+        }
         $email = $this->request->getRequiredBodyParam('email');
         $password = $this->request->getRequiredBodyParam('password');
-        $success = Login::login($email, $password);
+        $success = Customer::login($email, $password);
         if ($success) {
             return $this->redirectToPostedUrl();
         }
@@ -68,15 +72,16 @@ class CustomersController extends Controller
         return $this->asSuccess('You have been successfully logged in');
     }
 
-    public function actionSaveProfile() {
+    /**
+     * @throws ForbiddenHttpException
+     * @throws InvalidConfigException
+     * @throws BadRequestHttpException
+     */
+    public function actionSaveProfile()
+    {
         $this->requirePostRequest();
-        $currentCustomer = GetCurrentCustomer::getCurrentCustomer();
-        $customerId = $currentCustomer['entityId'] ?? null;
-        if (!$currentCustomer || !$customerId) {
-            $this->response->setStatusCode(400);
-            return $this->asFailure('You are not authorized to perform that action');
-        }
-        $customer = Plugin::getInstance()->getApi()->getClient()->customers()->getById($customerId);
+        $this->requireCustomer();
+        $customer = Customer::getCurrentCustomer();
         if (!$customer) {
             $this->response->setStatusCode(500);
             return $this->asFailure('Your customer record could not be located. Please sign out and sign back in.');
