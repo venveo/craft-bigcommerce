@@ -15,6 +15,7 @@ use craft\helpers\App;
 use Firebase\JWT\JWT;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use venveo\bigcommerce\base\SdkClientTrait;
 use venveo\bigcommerce\Plugin;
 
 /**
@@ -28,10 +29,9 @@ use venveo\bigcommerce\Plugin;
  */
 class Api extends Component
 {
-    /**
-     * @var Client|null
-     */
-    private ?Client $_client = null;
+
+    use SdkClientTrait;
+
 
     /**
      * Retrieve all a shop’s products.
@@ -116,25 +116,5 @@ class Api extends Component
         $offset = $apiTime - $now;
         Craft::$app->cache->set('bigcommerce_time_offset', $offset);
         return $offset;
-    }
-
-    /**
-     * Returns or sets up a Rest API client.
-     *
-     * @return Client
-     */
-    public function getClient(): Client
-    {
-        if ($this->_client === null) {
-            $pluginSettings = Plugin::getInstance()->getSettings();
-            $apiClientId = App::parseEnv($pluginSettings->clientId);
-            $apiSecretKey = App::parseEnv($pluginSettings->clientSecret);
-            $storeHash = App::parseEnv($pluginSettings->storeHash);
-            $accessToken = App::parseEnv($pluginSettings->accessToken);
-
-            $this->_client = new \BigCommerce\ApiV3\Client($storeHash, $apiClientId, $accessToken);
-        }
-
-        return $this->_client;
     }
 }
