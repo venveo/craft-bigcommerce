@@ -2,6 +2,7 @@
 
 namespace venveo\bigcommerce\api\operations;
 
+use JetBrains\PhpStorm\ArrayShape;
 use venveo\bigcommerce\base\ApiOperationInterface;
 use venveo\bigcommerce\helpers\ApiHelper;
 
@@ -14,7 +15,8 @@ class Products implements ApiOperationInterface
      */
     public static function getProductInformationById($productId): \Psr\Http\Message\ResponseInterface
     {
-        $query = <<<'EOD'
+        $query = /** @lang graphql */
+            <<<'EOD'
 query productById(
   $productId: Int!
 )
@@ -27,7 +29,10 @@ query productById(
       sku
       availabilityV2 {
         status
+        description
       }
+      minPurchaseQuantity
+      maxPurchaseQuantity
       variants(first: 25) {
         edges {
           node {
@@ -84,6 +89,10 @@ query productById(
           }
         }
       }
+      inventory {
+        hasVariantInventory
+        isInStock
+      }
       prices {
         price {
           ...MoneyFields
@@ -133,6 +142,122 @@ fragment MoneyFields on Money {
 EOD;
         $response = ApiHelper::sendGraphQLRequest($query, [
             'productId' => $productId
+        ], true);
+        return $response;
+    }
+
+
+
+    public static function getProductAvailabilityByOptions(int $productId, #[ArrayShape([[
+        'optionEntityId' => 'int',
+        'valueEntityId' => 'int'
+    ]])] array $options = []) {
+        $query = <<<'EOD'
+query ProductsWithOptionSelections(
+  $productId: Int!
+  $optionValueIds: [OptionValueId!]
+) # Use GraphQL Query Variables to inject your product ID
+# and Option Value IDs
+{
+  site {
+    product(
+      entityId: $productId
+      optionValueIds: $optionValueIds
+    ) {
+      ...ProductFields
+    }
+  }
+}
+
+fragment ProductFields on Product {
+productOptions(first: 25) {
+        edges {
+          node {
+            entityId
+            displayName
+            isRequired
+            __typename
+            ... on CheckboxOption {
+              checkedByDefault
+            }
+            ... on MultipleChoiceOption {
+              values(first: 10) {
+                edges {
+                  node {
+                    entityId
+                    label
+                    isDefault
+                    ... on SwatchOptionValue {
+                      hexColors
+                      imageUrl(width: 200)
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+  name
+  defaultImage {
+    url(width: 1000)
+  }
+  sku
+  minPurchaseQuantity
+  maxPurchaseQuantity
+  inventory {
+    hasVariantInventory
+    isInStock
+  }
+  prices {
+    price {
+      ...MoneyFields
+    }
+    priceRange {
+      min {
+        ...MoneyFields
+      }
+      max {
+        ...MoneyFields
+      }
+    }
+    salePrice {
+      ...MoneyFields
+    }
+    retailPrice {
+      ...MoneyFields
+    }
+    saved {
+      ...MoneyFields
+    }
+    bulkPricing {
+      minimumQuantity
+      maximumQuantity
+      ... on BulkPricingFixedPriceDiscount {
+        price
+      }
+      ... on BulkPricingPercentageDiscount {
+        percentOff
+      }
+      ... on BulkPricingRelativePriceDiscount {
+        priceAdjustment
+      }
+    }
+  }
+  availabilityV2 {
+    status
+    description
+  }
+}
+
+fragment MoneyFields on Money {
+  value
+  currencyCode
+}
+EOD;
+        $response = ApiHelper::sendGraphQLRequest($query, [
+            'productId' => $productId,
+            'optionValueIds' => $options
         ], true);
         return $response;
     }

@@ -210,4 +210,9 @@ class Products extends Component
         $data = \venveo\bigcommerce\api\operations\Products::getProductInformationById($id)->getBody()->getContents();
         return Json::decodeIfJson($data);
     }
+
+    public function getProductAvailabilityByOptions($id, $options) {
+        $data = \venveo\bigcommerce\api\operations\Products::getProductAvailabilityByOptions($id, $options)->getBody()->getContents();
+        return Json::decodeIfJson($data);
+    }
 }
