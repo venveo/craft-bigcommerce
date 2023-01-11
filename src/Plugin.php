@@ -32,6 +32,7 @@ use venveo\bigcommerce\services\Addresses;
 use venveo\bigcommerce\services\Api;
 use venveo\bigcommerce\services\Cart;
 use venveo\bigcommerce\services\Customers;
+use venveo\bigcommerce\services\Orders;
 use venveo\bigcommerce\services\Products;
 use venveo\bigcommerce\services\Store;
 use venveo\bigcommerce\utilities\Sync;
@@ -48,7 +49,14 @@ use yii\base\InvalidConfigException;
  * @since     1.0
  *
  * @property-read null|array $cpNavItem
- * @property Settings $settings
+ * @property-read Settings $settings
+ * @property-read Customers $customers
+ * @property-read Products $products
+ * @property-read Api $api
+ * @property-read Store $store
+ * @property-read mixed $settingsResponse
+ * @property-read Addresses $addresses
+ * @property-read Orders $orders
  * @method Settings getSettings()
  */
 class Plugin extends BasePlugin
@@ -83,6 +91,7 @@ class Plugin extends BasePlugin
                 'customers' => ['class' => Customers::class],
                 'cart' => ['class' => Cart::class],
                 'addresses' => ['class' => Addresses::class],
+                'orders' => ['class' => Orders::class],
             ],
         ];
     }
@@ -158,6 +167,11 @@ class Plugin extends BasePlugin
     public function getApi(): Api
     {
         return $this->get('api');
+    }
+
+    public function getOrders(): Orders
+    {
+        return $this->get('orders');
     }
 
     public function getAddresses(): Addresses

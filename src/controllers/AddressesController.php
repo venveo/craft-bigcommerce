@@ -27,7 +27,6 @@ class AddressesController extends BigCommerceApiController
         } else {
             $address = new CustomerAddress();
             $address->customer_id = Customer::getCurrentCustomerId();
-            $isNew = true;
         }
         $values = [
             'first_name' => $this->request->getBodyParam('first_name'),
@@ -46,11 +45,7 @@ class AddressesController extends BigCommerceApiController
             }
         }
         try {
-            if ($isNew) {
-                $result = Plugin::getInstance()->getApi()->getClient()->customers()->addresses()->create([$address]);
-            } else {
-                $result = Plugin::getInstance()->getApi()->getClient()->customers()->addresses()->update([$address]);
-            }
+            Plugin::getInstance()->getAddresses()->saveAddress($address, $addressId);
         } catch (\Exception $exception) {
             return $this->asFailure('Failed to save address.');
         }

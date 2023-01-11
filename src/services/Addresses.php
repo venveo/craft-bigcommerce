@@ -2,6 +2,7 @@
 
 namespace venveo\bigcommerce\services;
 
+use BigCommerce\ApiV3\ResourceModels\Customer\CustomerAddress;
 use craft\base\Component;
 use venveo\bigcommerce\api\operations\Customer;
 use venveo\bigcommerce\Plugin;
@@ -26,8 +27,14 @@ class Addresses extends Component
         return Plugin::getInstance()->getApi()->getClient()->customers()->addresses()->getAll($filters)->getAddresses();
     }
 
-    public function saveAddress($properties = [])
+    public function saveAddress(CustomerAddress $address, int $addressId = null): \BigCommerce\ApiV3\ResponseModels\Customer\CustomerAddressesResponse
     {
-
+        $isNew = $addressId === null;
+        if ($isNew) {
+            $result = Plugin::getInstance()->getApi()->getClient()->customers()->addresses()->create([$address]);
+        } else {
+            $result = Plugin::getInstance()->getApi()->getClient()->customers()->addresses()->update([$address]);
+        }
+        return $result;
     }
 }
