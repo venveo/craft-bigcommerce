@@ -8,6 +8,7 @@
 namespace venveo\bigcommerce\controllers;
 
 use craft\helpers\UrlHelper;
+use venveo\bigcommerce\api\operations\Cart;
 use venveo\bigcommerce\api\operations\Customer;
 use venveo\bigcommerce\base\BigCommerceApiController;
 use venveo\bigcommerce\models\bigcommerce\CreateCustomerRequest;
@@ -19,9 +20,27 @@ use yii\web\ForbiddenHttpException;
 class CustomersController extends BigCommerceApiController
 {
     public $enableCsrfValidation = true;
-    public array|bool|int $allowAnonymous = ['register', 'login', 'save-profile'];
+    public array|bool|int $allowAnonymous = ['register', 'login', 'save-profile', 'me'];
 
     public const CHANNEL_ID = 1;
+
+    public function actionMe()
+    {
+        $currentCustomer = Customer::getCurrentCustomer();
+        $cart = Cart::getCart(false);
+        if (!$currentCustomer) {
+            return $this->asJson(['customer' => null, 'cart' => $cart]);
+        } else {
+            return $this->asJson([
+                'customer' => [
+                    'id' => $currentCustomer->id,
+                    'first_name' => $currentCustomer->first_name,
+                    'last_name' => $currentCustomer->last_name
+                ],
+                'cart' => $cart
+            ]);
+        }
+    }
 
     public function actionLogin()
     {
