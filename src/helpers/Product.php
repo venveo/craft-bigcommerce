@@ -15,6 +15,7 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Formatter;
 use venveo\bigcommerce\elements\Product as ProductElement;
 use venveo\bigcommerce\records\ProductData;
+use yii\helpers\Html as HtmlHelper;
 
 /**
  * BigCommerce Product Helper.
@@ -59,19 +60,13 @@ class Product
 
         $meta[Craft::t('bigcommerce', 'Handle')] = $product->handle;
         $meta[Craft::t('bigcommerce', 'Status')] = $product->getBigCommerceStatusHtml();
-
         // Options
         if (count($product->getOptions()) > 0) {
-            $meta[Craft::t('bigcommerce', 'Options')] = collect($product->options)
-                ->map(function($option) {
-                    return Html::tag('span', $option['name'], [
-                        'title' => Craft::t('bigcommerce', '{name} option values: {values}', [
-                            'name' => $option['name'],
-                            'values' => implode(', ', $option['values']),
-                        ]),
-                    ]);
-                })
-                ->join(', ');
+            $meta[Craft::t('bigcommerce', 'Options')] = collect($product->getOptions())->map(function ($option) {
+                return HtmlHelper::tag('span', $option['display_name'], [
+                    'title' => $option['display_name'] . ' option values: ' . collect($option['option_values'])->pluck('label')->join(', '),
+                ]);
+            })->join(',&nbsp;');
         }
 
         // Variants
@@ -83,8 +78,10 @@ class Product
 
         $meta[Craft::t('bigcommerce', 'BigCommerce ID')] = Html::tag('code', (string)$product->bcId);
 
-        $meta[Craft::t('bigcommerce', 'Created at')] = $formatter->asDatetime($product->createdAt, Formatter::FORMAT_WIDTH_SHORT);
-        $meta[Craft::t('bigcommerce', 'Updated at')] = $formatter->asDatetime($product->updatedAt, Formatter::FORMAT_WIDTH_SHORT);
+        $meta[Craft::t('bigcommerce', 'Created at')] = $formatter->asDatetime($product->createdAt,
+            Formatter::FORMAT_WIDTH_SHORT);
+        $meta[Craft::t('bigcommerce', 'Updated at')] = $formatter->asDatetime($product->updatedAt,
+            Formatter::FORMAT_WIDTH_SHORT);
 
         $metadataHtml = Cp::metadataHtml($meta);
 

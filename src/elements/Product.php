@@ -650,8 +650,8 @@ class Product extends Element
                 return $this->sku ?? '';
             case 'options':
                 return collect($this->getOptions())->map(function($option) {
-                    return HtmlHelper::tag('span', $option['name'], [
-                        'title' => $option['name'] . ' option values: ' . collect($option['values'])->join(', '),
+                    return HtmlHelper::tag('span', $option['display_name'], [
+                        'title' => $option['display_name'] . ' option values: ' . collect($option['option_values'])->pluck('label')->join(', '),
                     ]);
                 })->join(',&nbsp;');
             case 'variants':

@@ -11,7 +11,7 @@ use yii\web\Request;
 
 class Cart implements ApiOperationInterface
 {
-    public static function getCart($create): ?\BigCommerce\ApiV3\ResourceModels\Cart\Cart
+    public static function getCart($create, $redirectUrl = null): ?\BigCommerce\ApiV3\ResourceModels\Cart\Cart
     {
         $cartCookie = \Craft::$app->request->getCookies()->get('bc_cartId')?->value;
         $client = Plugin::getInstance()->getApi()->getClient();
