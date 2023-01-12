@@ -9,6 +9,7 @@ use craft\base\Component;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
+use JetBrains\PhpStorm\ArrayShape;
 use venveo\bigcommerce\elements\Product as ProductElement;
 use venveo\bigcommerce\events\BigCommerceProductSyncEvent;
 use venveo\bigcommerce\Plugin;
@@ -103,8 +104,12 @@ class Products extends Component
      * @param Metafield[] $metafields
      * @return bool Whether or not the synchronization succeeded.
      */
-    public function createOrUpdateProduct(BigCommerceProduct $product, array $metafields = [], $variants = [], $options = []): bool
-    {
+    public function createOrUpdateProduct(
+        BigCommerceProduct $product,
+        array $metafields = [],
+        $variants = [],
+        $options = []
+    ): bool {
         // Expand any JSON-like properties:
 //        $metafields = MetafieldsHelper::unpack($metafields);
         $handle = $product->custom_url->url ?? null;
@@ -162,7 +167,8 @@ class Products extends Component
         $this->trigger(self::EVENT_BEFORE_SYNCHRONIZE_PRODUCT, $event);
 
         if (!$event->isValid) {
-            Craft::warning("Synchronization of BigCommerce product ID #{$product->id} was stopped by a plugin.", 'bigcommerce');
+            Craft::warning("Synchronization of BigCommerce product ID #{$product->id} was stopped by a plugin.",
+                'bigcommerce');
 
             return false;
         }
@@ -206,13 +212,17 @@ class Products extends Component
         return ProductElement::find()->bcId($id)->one()->id;
     }
 
-    public function getLiveProductDetailsByProductId($id) {
-        $data = \venveo\bigcommerce\api\operations\Products::getProductInformationById($id)->getBody()->getContents();
-        return Json::decodeIfJson($data);
-    }
-
-    public function getProductAvailabilityByOptions($id, $options) {
-        $data = \venveo\bigcommerce\api\operations\Products::getProductAvailabilityByOptions($id, $options)->getBody()->getContents();
+    public function getLiveProductDetailsByProductId(
+        $id,
+        #[ArrayShape([
+            [
+                'optionEntityId' => 'int',
+                'valueEntityId' => 'int'
+            ]
+        ])] array|null $options = []
+    ) {
+        $data = \venveo\bigcommerce\api\operations\Products::getProductInformationById($id,
+            $options)->getBody()->getContents();
         return Json::decodeIfJson($data);
     }
 }

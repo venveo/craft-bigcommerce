@@ -13,16 +13,25 @@ class Products implements ApiOperationInterface
      * @param $productId
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public static function getProductInformationById($productId): \Psr\Http\Message\ResponseInterface
+    public static function getProductInformationById($productId, #[ArrayShape([[
+        'optionEntityId' => 'int',
+        'valueEntityId' => 'int'
+    ]])] array|null $options = []): \Psr\Http\Message\ResponseInterface
     {
-        $query = /** @lang graphql */
-            <<<'EOD'
+        $options = $options ?? [];
+        $optionsParam = $options ? '$optionValueIds: [OptionValueId!]' : '';
+        $optionsQuery = $options ? 'optionValueIds: $optionValueIds' : '';
+        $query = sprintf('
 query productById(
   $productId: Int!
+  %s
 )
 {
   site {
-    product(entityId: $productId) {
+    product(
+        entityId: $productId
+        %s
+    ) {
       id
       entityId
       name
@@ -72,7 +81,7 @@ query productById(
               checkedByDefault
             }
             ... on MultipleChoiceOption {
-              values(first: 10) {
+              values(first: 25) {
                 edges {
                   node {
                     entityId
@@ -139,127 +148,12 @@ fragment MoneyFields on Money {
   value
   currencyCode
 }
-EOD;
-        $response = ApiHelper::sendGraphQLRequest($query, [
-            'productId' => $productId
-        ], true);
-        return $response;
-    }
-
-
-
-    public static function getProductAvailabilityByOptions(int $productId, #[ArrayShape([[
-        'optionEntityId' => 'int',
-        'valueEntityId' => 'int'
-    ]])] array $options = []) {
-        $query = <<<'EOD'
-query ProductsWithOptionSelections(
-  $productId: Int!
-  $optionValueIds: [OptionValueId!]
-) # Use GraphQL Query Variables to inject your product ID
-# and Option Value IDs
-{
-  site {
-    product(
-      entityId: $productId
-      optionValueIds: $optionValueIds
-    ) {
-      ...ProductFields
-    }
-  }
-}
-
-fragment ProductFields on Product {
-productOptions(first: 25) {
-        edges {
-          node {
-            entityId
-            displayName
-            isRequired
-            __typename
-            ... on CheckboxOption {
-              checkedByDefault
-            }
-            ... on MultipleChoiceOption {
-              values(first: 10) {
-                edges {
-                  node {
-                    entityId
-                    label
-                    isDefault
-                    ... on SwatchOptionValue {
-                      hexColors
-                      imageUrl(width: 200)
-                    }
-                  }
-                }
-              }
-            }
-          }
+', $optionsParam, $optionsQuery);
+        $variables = ['productId' => $productId];
+        if ($options) {
+            $variables['optionValueIds'] = $options;
         }
-      }
-  name
-  defaultImage {
-    url(width: 1000)
-  }
-  sku
-  minPurchaseQuantity
-  maxPurchaseQuantity
-  inventory {
-    hasVariantInventory
-    isInStock
-  }
-  prices {
-    price {
-      ...MoneyFields
-    }
-    priceRange {
-      min {
-        ...MoneyFields
-      }
-      max {
-        ...MoneyFields
-      }
-    }
-    salePrice {
-      ...MoneyFields
-    }
-    retailPrice {
-      ...MoneyFields
-    }
-    saved {
-      ...MoneyFields
-    }
-    bulkPricing {
-      minimumQuantity
-      maximumQuantity
-      ... on BulkPricingFixedPriceDiscount {
-        price
-      }
-      ... on BulkPricingPercentageDiscount {
-        percentOff
-      }
-      ... on BulkPricingRelativePriceDiscount {
-        priceAdjustment
-      }
-    }
-  }
-  availabilityV2 {
-    status
-    description
-  }
-}
-
-fragment MoneyFields on Money {
-  value
-  currencyCode
-}
-EOD;
-        $response = ApiHelper::sendGraphQLRequest($query, [
-            'productId' => $productId,
-            'optionValueIds' => $options
-        ], true);
+        $response = ApiHelper::sendGraphQLRequest($query, $variables, true);
         return $response;
     }
-
 }
