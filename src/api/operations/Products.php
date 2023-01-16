@@ -45,6 +45,10 @@ query productById(
       variants(first: 25) {
         edges {
           node {
+            isPurchasable
+            inventory {
+                isInStock            
+            }
             prices {
               price {
                 ...MoneyFields
@@ -70,32 +74,9 @@ query productById(
           }
         }
       }
-      productOptions(first: 25) {
+      productOptions(first: 50) {
         edges {
-          node {
-            entityId
-            displayName
-            isRequired
-            __typename
-            ... on CheckboxOption {
-              checkedByDefault
-            }
-            ... on MultipleChoiceOption {
-              values(first: 25) {
-                edges {
-                  node {
-                    entityId
-                    label
-                    isDefault
-                    ... on SwatchOptionValue {
-                      hexColors
-                      imageUrl(width: 200)
-                    }
-                  }
-                }
-              }
-            }
-          }
+        ...OptionFields
         }
       }
       inventory {
@@ -143,6 +124,64 @@ query productById(
     }
   }
 }
+
+fragment OptionFields on ProductOptionEdge {
+            node {
+            __typename
+            entityId
+            displayName
+            isRequired
+            isVariantOption
+            ... on CheckboxOption {
+              checkedByDefault
+              label
+            }
+            ... on TextFieldOption {
+              textDefaultValue: defaultValue
+              minLength
+              maxLength
+            }
+            ... on NumberFieldOption {
+              numberDefaultValue: defaultValue
+              lowest
+              highest
+              isIntegerOnly
+              limitNumberBy
+            }
+            ... on DateFieldOption {
+              dateDefaultValue: defaultValue
+              earliest
+              latest
+              limitDateBy
+            }
+            ... on MultiLineTextFieldOption {
+              textDefaultValue: defaultValue
+              minLength
+              maxLength
+              maxLines
+            }
+            ... on FileUploadFieldOption {
+              maxFileSize
+              fileTypes
+            }
+            ... on MultipleChoiceOption {
+              displayStyle
+              values(first: 10) {
+                edges {
+                  node {
+                    entityId
+                    label
+                    isDefault
+                    ... on SwatchOptionValue {
+                      hexColors
+                      imageUrl(width: 200)
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
 
 fragment MoneyFields on Money {
   value

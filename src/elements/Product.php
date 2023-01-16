@@ -16,6 +16,7 @@ use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
+use Illuminate\Support\Collection;
 use venveo\bigcommerce\elements\conditions\products\ProductCondition;
 use venveo\bigcommerce\elements\db\ProductQuery;
 use venveo\bigcommerce\helpers\Product as ProductHelper;
@@ -734,6 +735,28 @@ class Product extends Element
     public function hasRevisions(): bool
     {
         return true;
+    }
+
+    /**
+     * @param $formattedForGql
+     * @return Collection
+     */
+    public function getDefaultOptions($formattedForGql = false) {
+        $result = collect($this->getOptions())->keyBy('id')
+            ->map(function ($option) {
+                $values = $option['option_values'] ?? [];
+                foreach ($values as $value) {
+                    if ($value['is_default']) {
+                        return $value['id'];
+                    }
+                }
+            });
+        if ($formattedForGql) {
+            $result->map(function ($k, $v) {
+                return ['optionEntityId' => $v, 'valueEntityId' => $k];
+            })->values();
+        }
+        return $result;
     }
 
     /**
