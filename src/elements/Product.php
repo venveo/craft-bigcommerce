@@ -744,13 +744,13 @@ class Product extends Element
     public function getDefaultOptions($formattedForGql = false) {
         $result = collect($this->getOptions())->keyBy('id')
             ->map(function ($option) {
-                $values = $option['option_values'] ?? [];
-                foreach ($values as $value) {
-                    if ($value['is_default']) {
-                        return $value['id'];
-                    }
+                $values = collect($option['option_values'] ?? []);
+                $defaultValue = $values->firstWhere('is_default', '=', true);
+                if (!$defaultValue) {
+                    $defaultValue = $values->first();
                 }
-            });
+                return $defaultValue['id'] ?? null;
+            })->filter();
         if ($formattedForGql) {
             $result->map(function ($k, $v) {
                 return ['optionEntityId' => $v, 'valueEntityId' => $k];
