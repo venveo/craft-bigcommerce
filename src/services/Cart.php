@@ -7,15 +7,8 @@
 
 namespace venveo\bigcommerce\services;
 
-use BigCommerce\ApiV3\Client;
-use BigCommerce\ApiV3\ResourceModels\Catalog\Product\Product;
-use Craft;
 use craft\base\Component;
-use craft\helpers\App;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\GuzzleException;
 use venveo\bigcommerce\base\SdkClientTrait;
-use venveo\bigcommerce\Plugin;
 
 /**
  * BigCommerce API service.
@@ -30,7 +23,8 @@ class Cart extends Component
 {
     use SdkClientTrait;
 
-    public function getCart($create = true) {
-        return \venveo\bigcommerce\api\operations\Cart::getCart($create);
+    public function getCart($create = true, $redirectUrl = null)
+    {
+        return \venveo\bigcommerce\api\operations\Cart::getCart($create, $redirectUrl);
     }
 }
