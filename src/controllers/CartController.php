@@ -10,6 +10,7 @@ namespace venveo\bigcommerce\controllers;
 use BigCommerce\ApiV3\ResourceModels\Cart\CartItem;
 use BigCommerce\ApiV3\ResponseModels\Cart\CartRedirectUrlsResponse;
 use venveo\bigcommerce\api\operations\Cart;
+use venveo\bigcommerce\api\operations\Customer;
 use venveo\bigcommerce\base\BigCommerceApiController;
 use venveo\bigcommerce\Plugin;
 
@@ -69,8 +70,15 @@ class CartController extends BigCommerceApiController
 
     public function actionCheckout() {
         $cart = Cart::getCart(true);
-
+        $customerId = Customer::getCurrentCustomerId();
         $redirectUrlsResponse = new CartRedirectUrlsResponse(Plugin::getInstance()->api->getClient()->getRestClient()->post(sprintf('carts/%s/redirect_urls', $cart->id)));
-        return $this->redirect($redirectUrlsResponse->getCartRedirectUrls()->checkout_url);
+        $checkoutUrl = $redirectUrlsResponse->getCartRedirectUrls()->checkout_url;
+        // TODO: Should a customer be allowed to take over another customer's cart?
+//        $cart->customer_id === $customerId
+        if ($customerId) {
+            $checkoutUrl = Plugin::getInstance()->api->getCustomerLoginUrl($customerId, $checkoutUrl, null, 1);
+        }
+
+        return $this->redirect($checkoutUrl);
     }
 }

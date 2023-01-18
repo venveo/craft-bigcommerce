@@ -20,7 +20,7 @@ use yii\web\ForbiddenHttpException;
 class CustomersController extends BigCommerceApiController
 {
     public $enableCsrfValidation = true;
-    public array|bool|int $allowAnonymous = ['register', 'login', 'save-profile', 'me'];
+    public array|bool|int $allowAnonymous = ['register', 'login', 'save-profile', 'me', 'logout'];
 
     public const CHANNEL_ID = 1;
 
@@ -56,6 +56,15 @@ class CustomersController extends BigCommerceApiController
             return $this->redirectToPostedUrl();
         }
         return $this->asFailure('Incorrect username or password', ['email' => $email]);
+    }
+
+    public function actionLogout() {
+        if (!$this->request instanceof \yii\web\Request) {
+            return;
+        }
+        $this->response->cookies->remove('bc_cartId');
+        $this->response->cookies->remove('SHOP_TOKEN');
+        return $this->asSuccess('You have been logged out.', [], UrlHelper::siteUrl('/'));
     }
 
     /**
