@@ -8,6 +8,7 @@
 namespace venveo\bigcommerce\controllers;
 
 use BigCommerce\ApiV3\ResourceModels\Cart\CartItem;
+use BigCommerce\ApiV3\ResponseModels\Cart\CartRedirectUrlsResponse;
 use venveo\bigcommerce\api\operations\Cart;
 use venveo\bigcommerce\base\BigCommerceApiController;
 use venveo\bigcommerce\Plugin;
@@ -15,7 +16,7 @@ use venveo\bigcommerce\Plugin;
 class CartController extends BigCommerceApiController
 {
     public $enableCsrfValidation = false;
-    public array|bool|int $allowAnonymous = ['add', 'delete-line-item', 'update-line-item'];
+    public array|bool|int $allowAnonymous = ['add', 'delete-line-item', 'update-line-item', 'checkout'];
 
     public const CHANNEL_ID = 1;
 
@@ -64,5 +65,12 @@ class CartController extends BigCommerceApiController
         } catch (\Exception $exception) {
             return $this->asFailure('Failed to update line item');
         }
+    }
+
+    public function actionCheckout() {
+        $cart = Cart::getCart(true);
+
+        $redirectUrlsResponse = new CartRedirectUrlsResponse(Plugin::getInstance()->api->getClient()->getRestClient()->post(sprintf('carts/%s/redirect_urls', $cart->id)));
+        return $this->redirect($redirectUrlsResponse->getCartRedirectUrls()->checkout_url);
     }
 }
