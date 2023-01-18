@@ -1,0 +1,37 @@
+{% extends 'bigcommerce/settings/_layout' %}
+{% set title = 'Channels'|t('bigcommerce') %}
+
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+
+
+{% block actionButton %}
+    <a class="btn submit add icon" href="{{ url('bigcommerce/channels/new') }}">{{ "New channel"|t('bigcommerce') }}</a>
+{% endblock %}
+
+{% block content %}
+    <div id="channels-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for channel in channels %}
+
+    {% set tableData = tableData|merge([{
+        id: channel.id,
+        title: channel.name|t('site'),
+        url: url('bigcommerce/channels/' ~ channel.id),
+        name: channel.name|t('site')|e
+    }]) %}
+{% endfor %}
+
+{% js %}
+var columns = [
+    { name: '__slot:title', title: Craft.t('app', 'Name') },
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    container: '#channels-vue-admin-table',
+    emptyMessage: Craft.t('bigcommerce', 'No channels exist yet.'),
+    tableData: {{ tableData|json_encode|raw }}
+});
+{% endjs %}

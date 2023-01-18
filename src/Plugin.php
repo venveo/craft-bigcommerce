@@ -285,8 +285,14 @@ class Plugin extends BasePlugin
             $event->rules['bigcommerce/products'] = 'bigcommerce/products/product-index';
             $event->rules['bigcommerce/sync-products'] = 'bigcommerce/products/sync';
             $event->rules['bigcommerce/products/<elementId:\d+>'] = 'elements/edit';
+
             $event->rules['bigcommerce/settings'] = 'bigcommerce/settings';
+
             $event->rules['bigcommerce/webhooks'] = 'bigcommerce/webhooks/edit';
+
+            $event->rules['bigcommerce/channels'] = 'bigcommerce/channels/index';
+            $event->rules['bigcommerce/channels/new'] = 'bigcommerce/channels/edit';
+            $event->rules['bigcommerce/channels/<channelId:\d+>'] = 'bigcommerce/channels/edit';
         });
     }
 
@@ -329,6 +335,7 @@ class Plugin extends BasePlugin
             ];
         }
 
+
         if ($isConnected) {
             if (Craft::$app->getUser()->getIsAdmin()) {
                 $ret['subnav']['webhooks'] = [
@@ -336,6 +343,7 @@ class Plugin extends BasePlugin
                     'url' => 'bigcommerce/webhooks',
                 ];
             }
+
         }
 
 

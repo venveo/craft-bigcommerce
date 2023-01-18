@@ -96,6 +96,72 @@
             errors: settings.getErrors('storeHash'),
             suggestEnvVars: true,
         }) }}
+        {{ forms.selectizeField({
+            label: 'BigCommerce Sales Channel'|t('bigcommerce'),
+            name: 'settings[defaultChannel]',
+            warning: not connected ? 'Please check and save your credentials.'|t('bigcommerce'),
+            value: settings.defaultChannel,
+            options: [{label: 'Select one', value: '', disabled: true}]|merge(channels|map(c => {label: c.name, value: c.id})),
+        }) }}
+{#
+When we're ready for multi-channel support:
+
+        {% set siteRows = [] %}
+        {% set siteErrors = settings.getErrors('siteSettings') %}
+
+        {% for site in craft.app.sites.getAllSites() %}
+            {% set siteSettings = section.siteSettings[site.id] ?? null %}
+            {% if siteSettings %}
+                {% for attribute, errors in siteSettings.getErrors() %}
+                    {% set siteErrors = siteErrors|merge(errors) %}
+                {% endfor %}
+            {% endif %}
+            {% set siteRows = siteRows|merge({
+                (site.handle): {
+                    heading: site.name|t('site')|e,
+                    enabled: include('_includes/forms/lightswitch', {
+                        name: 'sites['~site.handle~'][enabled]',
+                        on: true,
+                        value: site.id,
+                        small: true
+                    }),
+                    channel: include('_includes/forms/select', {
+                        name: 'sites['~site.handle~'][channel]',
+                        value: null
+                    }),
+                }|filter
+            }) %}
+        {% endfor %}
+
+
+        {{ forms.editableTableField({
+            label: "Site Settings"|t('app'),
+            instructions: "Choose which sites should use which BigCommerce channel."|t('bigcommerce'),
+            id: 'channelSites',
+            name: 'channelSites',
+            cols: {
+                heading: {
+                    type: 'heading',
+                    heading: "Site"|t('app'),
+                    thin: true
+                },
+                enabled: {
+                    type: 'heading',
+                    thin: true
+                },
+                channel: {
+                    type: 'select',
+                    options: [{label: 'Disabled', value: ''}]|merge(channels|map(c => {label: c.name, value: c.id})),
+                },
+            }|filter,
+            rows: siteRows,
+            fullWidth: true,
+            allowAdd: false,
+            allowDelete: false,
+            allowReorder: false,
+            errors: siteErrors|unique
+        }) }}
+        #}
 
         {{ forms.autosuggestField({
             label: 'Webhook Base URL Override'|t('bigcommerce'),

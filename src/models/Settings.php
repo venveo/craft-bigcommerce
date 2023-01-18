@@ -28,6 +28,7 @@ class Settings extends Model
     public string $webhookBaseUrl = '';
     public string $uriFormat = '';
     public string $template = '';
+    public string $defaultChannel = '';
     private mixed $_productFieldLayout;
 
     public function rules(): array

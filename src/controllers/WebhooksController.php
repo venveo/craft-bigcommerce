@@ -56,7 +56,7 @@ class WebhooksController extends Controller
 //        );
 
 
-        return $this->renderTemplate('bigcommerce/webhooks/index', compact('webhooks', 'containsAllWebhooks'));
+        return $this->renderTemplate('bigcommerce/webhooks/_index', compact('webhooks', 'containsAllWebhooks'));
     }
 
     /**

@@ -1,0 +1,30 @@
+{% extends "bigcommerce/settings/_layout" %}
+{% import '_includes/forms.twig' as forms %}
+{% set fullPageForm = true %}
+
+{% do view.registerTranslations('bigcommerce', [
+]) %}
+
+{% block content %}
+    {{ actionInput('bigcommerce/channels/save-channel') }}
+    {% if channel is defined and channel and channel.id is defined %}
+        {{ hiddenInput('id', channel.id) }}
+    {% endif %}
+    {{ forms.textField({
+        first: true,
+        label: 'Channel Name'|t('bigcommerce'),
+        instructions: 'Give the channel a descriptive name. This will be visible in BigCommerce.'|t('bigcommerce'),
+        name: 'name',
+        required: true,
+        value: channel.name ?? null
+    }) }}
+
+    {{ forms.selectizeField({
+        label: 'Status'|t('bigcommerce'),
+        instructions: 'What is the status of the channel?'|t('bigcommerce'),
+        name: 'status',
+        required: true,
+        options: statusOptions|map((v,k) => {label: v, value: k}),
+        value: channel.status ?? null
+    }) }}
+{% endblock %}
