@@ -2,7 +2,6 @@
 
 ## Unreleased
 
-- Fixed a SQL error that occurred when syncing products with several tags. ([#54](https://github.com/craftcms/shopify/issues/54))
 - Product metadata is now synced via a queue job to avoid the Shopify API rate limiting.
 
 ## 3.1.0 - 2022-12-14

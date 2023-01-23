@@ -62,10 +62,9 @@ class Products extends Component
         $products = $api->getAllProducts();
 
         foreach ($products as $product) {
-            $this->createOrUpdateProduct($product);
             Craft::$app->getQueue()->push(new UpdateProductMetadata([
                 'description' => Craft::t('bigcommerce', 'Updating product metadata for “{title}”', [
-                    'title' => $product->title,
+                    'title' => $product->name,
                 ]),
                 'bcProductId' => $product->id,
             ]));
