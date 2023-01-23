@@ -9,11 +9,12 @@ use craft\base\Component;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
-use JetBrains\PhpStorm\ArrayShape;
 use venveo\bigcommerce\elements\Product as ProductElement;
 use venveo\bigcommerce\events\BigCommerceProductSyncEvent;
 use venveo\bigcommerce\Plugin;
 use venveo\bigcommerce\records\ProductData as ProductDataRecord;
+use venveo\bigcommerce\helpers\Metafields as MetafieldsHelper;
+use venveo\bigcommerce\jobs\UpdateProductMetadata;
 
 /**
  * BigCommerce Products service.
@@ -61,15 +62,13 @@ class Products extends Component
         $products = $api->getAllProducts();
 
         foreach ($products as $product) {
-            $metafields = $api->getMetafieldsByProductId($product->id);
-            try {
-                $variants = $api->getVariantsByProductId($product->id);
-                $options = $api->getOptionsByProductId($product->id);
-            } catch (\Throwable $throwable) {
-                $variants = [];
-                $options = [];
-            }
-            $this->createOrUpdateProduct($product, $metafields, $variants, $options);
+            $this->createOrUpdateProduct($product);
+            Craft::$app->getQueue()->push(new UpdateProductMetadata([
+                'description' => Craft::t('bigcommerce', 'Updating product metadata for “{title}”', [
+                    'title' => $product->title,
+                ]),
+                'bcProductId' => $product->id,
+            ]));
         }
 
         // Remove any products that are no longer in BigCommerce just in case.

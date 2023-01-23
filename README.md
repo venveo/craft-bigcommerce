@@ -422,7 +422,7 @@ Once you have a reference to a variant, you can output its properties:
 ```twig
 {% set defaultVariant = product.getDefaultVariant() %}
 
-{{ variant.price|currency }}
+{{ defaultVariant.price|currency }}
 ```
 
 > **Note**  
