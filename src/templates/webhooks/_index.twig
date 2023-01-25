@@ -1,5 +1,6 @@
 {# @var craft \craft\web\twig\variables\CraftVariable #}
 {% extends "_layouts/cp" %}
+{% import '_includes/forms.twig' as forms %}
 {% set selectedSubnavItem = 'webhooks' %}
 
 {% set title = "Webhooks"|t('bigcommerce') %}
@@ -13,6 +14,13 @@
     <div class="{{ containsAllWebhooks ? 'hidden' : '' }}">
         <p>{{ "Create the webhooks for the current environment."|t('bigcommerce') }}</p>
         <form method="POST">
+            {{ forms.textField({
+                label: 'Base URL Override'|t('bigcommerce'),
+                type: 'url',
+                placeholder: 'https://example.ngrok.io',
+                name: 'baseUrlOverride',
+                instructions: 'You may use this field to override the base URL when creating webhooks. This is useful for local testing with ngrok.'|t('bigcommerce')
+            }) }}
             {{ actionInput('bigcommerce/webhooks/create') }}
             {{ redirectInput('bigcommerce/webhooks') }}
             {{ csrfInput() }}

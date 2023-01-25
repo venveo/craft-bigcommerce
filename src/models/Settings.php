@@ -25,6 +25,7 @@ class Settings extends Model
     public string $clientSecret = '';
     public string $accessToken = '';
     public string $storeHash = '';
+    /** @deprecated */
     public string $webhookBaseUrl = '';
     public string $uriFormat = '';
     public string $template = '';
@@ -48,7 +49,6 @@ class Settings extends Model
             'clientSecret' => Craft::t('bigcommerce', 'BigCommerce API Secret Key'),
             'accessToken' => Craft::t('bigcommerce', 'BigCommerce Access Token'),
             'storeHash' => Craft::t('bigcommerce', 'BigCommerce Store ID'),
-            'webhookBaseUrl' => Craft::t('bigcommerce', 'Webhook Base URL'),
             'uriFormat' => Craft::t('bigcommerce', 'Product URI format'),
             'template' => Craft::t('bigcommerce', 'Product Template'),
             'defaultChannel' => Craft::t('bigcommerce', 'Default Channel'),
@@ -79,10 +79,10 @@ class Settings extends Model
     /**
      * @return string
      */
-    public function getWebhookUrl(): string
+    public function getWebhookUrl($baseUrlOverride): string
     {
         $path = 'bigcommerce/webhook/handle';
-        if ($this->webhookBaseUrl && $baseUrl = App::parseEnv($this->webhookBaseUrl)) {
+        if ($baseUrlOverride && $baseUrl = App::parseEnv($baseUrlOverride)) {
             $baseUrl = UrlHelper::url($baseUrl . '/' . $path);
             return $baseUrl;
         }

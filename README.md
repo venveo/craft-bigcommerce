@@ -26,7 +26,7 @@ To install the plugin, visit the [Plugin Store](https://plugins.craftcms.com/big
 2. Require the package with Composer:
 
    ```bash
-   composer require craftcms/bigcommerce -w
+   composer require venveo/craft-bigcommerce -w
    ```
 
 3. In the Control Panel, go to **Settings** → **Plugins** and click the “Install” button for BigCommerce, or run:
@@ -35,42 +35,48 @@ To install the plugin, visit the [Plugin Store](https://plugins.craftcms.com/big
    php craft plugin/install bigcommerce
    ```
 
-### Create a BigCommerce App
-
-The plugin works with BigCommerce’s [Custom Apps](https://help.bigcommerce.com/en/manual/apps/custom-apps) system.
+### Create a BigCommerce API Account
 
 > **Note**  
-> If you are not the owner of the BigCommerce store, have the owner add you as a collaborator or staff member with the [_Develop Apps_ permission](https://help.bigcommerce.com/en/manual/apps/custom-apps#api-scope-permissions-for-custom-apps).
+> You must be the owner of the store in order to generate API accounts.
 
-Follow [BigCommerce’s directions](https://help.bigcommerce.com/en/manual/apps/custom-apps) for creating a private app (through the _Get the API credentials for a custom app_ section), and take these actions when prompted:
+Login to your BigCommerce admin panel and navigate to Settings &rarr; API Accounts &rarr; Create API Account. Proceed as follows:
 
-1. **App Name**: Choose something that identifies the integration, like “Craft CMS.”
-2. **Admin API access scopes**: The following scopes are required for the plugin to function correctly:
+1. **Token type**: V2/V3 API token
+1. **Name**: A descriptive name. It's a good idea to use different credentials for different environments - e.g. "[Prod] Craft CMS"
+1. **OAuth scopes**: The following scopes are required for the plugin to function correctly:
 
-   - `read_products`
-   - `read_product_listings`
+   - Content: `read-only`
+   - Checkout content: `None`
+   - Customers: `modify`
+   - Customer login: `login`
+   - Information & settings: `modify`
+   - Marketing: `modify`
+   - Orders: `modify`
+   - Order transactions: `read-only`
+   - Create payments: `None`
+   - Get payment methods: `None`
+   - Stored Payment Instruments: `None`
+   - Products: `modify`
+   - Themes: `read-only`
+   - Carts: `modify`
+   - Checkouts: `modify`
+   - Sites & routes: `modify`
+   - Channel settings: `modify`
+   - Channel listings: `modify`
+   - Storefront API tokens: `manage`
+   - Storefront API customer impersonation tokens: `manage`
+   - Store logs: `read-only`
+   - Store Inventory: `read-only`
 
-   Additionally (at the bottom of this screen), the **Webhook subscriptions** &rarr; **Event version** should be `2022-10`.
+Click save.
 
-3. **Admin API access token**: Reveal and copy this value into your `.env` file, as `SHOPIFY_ADMIN_ACCESS_TOKEN`.
-4. **API key and secret key**: Reveal and/or copy the **API key** and **API secret key** into your `.env` under `SHOPIFY_API_KEY` and `SHOPIFY_API_SECRET_KEY`, respectively.
+1. **Client ID**: Reveal and copy this value into your `.env` file, as `BC_CLIENT_ID`.
+1. **Client secret**: Reveal and copy this value into your `.env` file, as `BC_CLIENT_SECRET`.
+1. **Access token**: Reveal and copy this value into your `.env` file, as `BC_ACCESS_TOKEN`.
+1. **Store Hash**: This value is found in your store URL: `https://store-**store hash**.mybigcommerce.com/` Copy this value into your `.env` file, as `BC_STORE_HASH`
+1. **Sales Channel**: If you're using the default BigCommerce storefront, this value is `1`; otherwise, find the ID of your Sales Channel in the Channel Manager of Big Commerce. Copy this value into your `.env` file, as `BC_SALES_CHANNEL`
 
-#### Store Hostname
-
-The last piece of info you’ll need on hand is your store’s hostname. This is usually what appears in the browser when using the BigCommerce admin—it’s also shown in the Settings screen of your store:
-
-<img src="./docs/bigcommerce-hostname.png" alt="Screenshot of the settings screen in the BigCommerce admin, with an arrow pointing to the store’s default hostname in the sidebar.">
-
-Save this value (_without_ the leading `http://` or `https://`) in your `.env` as `SHOPIFY_HOSTNAME`. At this point, you should have four BigCommerce-specific values:
-
-```env
-# ...
-
-SHOPIFY_ADMIN_ACCESS_TOKEN="..."
-SHOPIFY_API_KEY="..."
-SHOPIFY_API_SECRET_KEY="..."
-SHOPIFY_HOSTNAME="my-storefront.mybigcommerce.com"
-```
 
 ### Connect Plugin
 
@@ -78,10 +84,10 @@ Now that you have credentials for your custom app, it’s time to add them to Cr
 
 1. Visit the **BigCommerce** &rarr; **Settings** screen in your project’s control panel.
 2. Assign the four environment variables to the corresponding settings, using the special [config syntax](https://craftcms.com/docs/4.x/config/#control-panel-settings):
-   - **API Key**: `$SHOPIFY_API_KEY`
-   - **API Secret Key**: `$SHOPIFY_API_SECRET_KEY`
-   - **Access Token**: `$SHOPIFY_ACCESS_TOKEN`
-   - **Host Name**: `$SHOPIFY_HOSTNAME`
+   - **API Client ID**: `$BC_CLIENT_ID`
+   - **API Secret Key**: `$BC_CLIENT_SECRET`
+   - **Access Token**: `$BC_ACCESS_TOKEN`
+   - **Sales Channel**: `$BC_SALES_CHANNEL`
 3. Click **Save**.
 
 > **Note**  
@@ -97,7 +103,7 @@ Click **Create** on the Webhooks screen to add the required webhooks to BigComme
 > You will need to add webhooks for each environment you deploy the plugin to, because each webhook is tied to a specific URL.
 
 > **Note**  
-> If you need to test live synchronization in development, we recommend using [ngrok](https://ngrok.com/) to create a tunnel to your local environment. DDEV makes this simple, with [the `ddev share` command](https://ddev.readthedocs.io/en/latest/users/topics/sharing/). Keep in mind that your site’s primary/base URL is used when registering webhooks, so you may need to update it to match the ngrok tunnel, then recreate your webhooks.
+> If you need to test live synchronization in development, we recommend using [ngrok](https://ngrok.com/) to create a tunnel to your local environment. DDEV makes this simple, with [the `ddev share` command](https://ddev.readthedocs.io/en/latest/users/topics/sharing/). Use the **Base URL Override** option on the webhook creation screen to provide this value. Remember to delete the test webhooks when you're done!
 
 ## Product Element
 
@@ -118,28 +124,25 @@ Once the plugin has been configured, perform an initial synchronization via the 
 
 In addition to the standard element attributes like `id`, `title`, and `status`, each BigCommerce product element contains the following mappings to its canonical [BigCommerce Product resource](https://bigcommerce.dev/api/admin-rest/2022-10/resources/product#resource-object):
 
-| Attribute        | Description                                                                                                                                                                                | Type       |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |
-| `bigcommerceId`      | The unique product identifier in your BigCommerce store.                                                                                                                                       | `String`   |
-| `bigcommerceStatus`  | The status of the product in your BigCommerce store. Values can be `active`, `draft`, or `archived`.                                                                                           | `String`   |
-| `handle`         | The product’s “URL handle” in BigCommerce, equivalent to a “slug” in Craft. For existing products, this is visible under the **Search engine listing** section of the edit screen.             | `String`   |
-| `productType`    | The product type of the product in your BigCommerce store.                                                                                                                                     | `String`   |
-| `bodyHtml`       | Product description. Use the `\|raw` filter to output it in Twig—but only if the content is trusted.                                                                                       | `String`   |
-| `publishedScope` | Published scope of the product in BigCommerce store. Common values are `web` (for web-only products) and `global` (for web and point-of-sale products).                                        | `String`   |
-| `tags`           | Tags associated with the product in BigCommerce.                                                                                                                                               | `Array`    |
-| `templateSuffix` | [Liquid template suffix](https://bigcommerce.dev/themes/architecture/templates#name-structure) used for the product page in BigCommerce.                                                           | `String`   |
-| `vendor`         | Vendor of the product.                                                                                                                                                                     | `String`   |
-| `metaFields`     | [Metafields](https://bigcommerce.dev/api/admin-rest/2022-10/resources/metafield#resource-object) associated with the product.                                                                  | `Array`    |
-| `images`         | Images attached to the product in BigCommerce. The complete [Product Image resources](https://bigcommerce.dev/api/admin-rest/2022-10/resources/product-image#resource-object) are stored in Craft. | `Array`    |
-| `options`        | Product options, as configured in BigCommerce. Each option has a `name`, `position`, and an array of `values`.                                                                                 | `Array`    |
-| `createdAt`      | When the product was created in your BigCommerce store.                                                                                                                                        | `DateTime` |
-| `publishedAt`    | When the product was published in your BigCommerce store.                                                                                                                                      | `DateTime` |
-| `updatedAt`      | When the product was last updated in your BigCommerce store.                                                                                                                                   | `DateTime` |
+| Attribute     | Description                                                                                                                                                                                        | Type       |
+|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ---------- |
+| `bcId`        | The unique product identifier in your BigCommerce store.                                                                                                                                           | `String`   |
+| `bcStatus`    | The status of the product in your BigCommerce store. Values can be `active`, `draft`, or `archived`.                                                                                               | `String`   |
+| `handle`      | The product’s “URL handle” in BigCommerce, equivalent to a “slug” in Craft. For existing products, this is visible under the **Search engine listing** section of the edit screen.                 | `String`   |
+| `productType` | The product type of the product in your BigCommerce store.                                                                                                                                         | `String`   |
+| `vendor`      | Vendor of the product.                                                                                                                                                                             | `String`   |
+| `metaFields`  | Metafields associated with the product.                                                                                                                                                            | `Array`    |
+| `images`      | Images attached to the product in BigCommerce. The complete [Product Image resources](https://bigcommerce.dev/api/admin-rest/2022-10/resources/product-image#resource-object) are stored in Craft. | `Array`    |
+| `options`     | Product options, as configured in BigCommerce.                                                                                | `Array`    |
+| `variants`    | Product variants, as configured in BigCommerce.                                                              | `Array`    |
+| `createdAt`   | When the product was created in your BigCommerce store.                                                                                                                                            | `DateTime` |
+| `publishedAt` | When the product was published in your BigCommerce store.                                                                                                                                          | `DateTime` |
+| `updatedAt`   | When the product was last updated in your BigCommerce store.                                                                                                                                       | `DateTime` |
 
 All of these properties are available when working with a product element [in your templates](#templating).
 
 > **Note**  
-> See the BigCommerce documentation on the [product resource](https://bigcommerce.dev/api/admin-rest/2022-10/resources/product#resource-object) for more information about what kinds of values to expect from these properties.
+> See the BigCommerce documentation on the [product resource](hhttps://developer.bigcommerce.com/docs/ZG9jOjIyMDU5Ng-catalog-overview) for more information about what kinds of values to expect from these properties.
 
 ### Methods
 
@@ -154,7 +157,7 @@ Returns the [variants](#variants-and-pricing) belonging to the product.
 
 <select name="variantId">
   {% for variant in variants %}
-    <option value="{{ variant.id }}">{{ variant.title }}</option>
+    <option value="{{ variant.id }}">{{ variant.sku }}</option>
   {% endfor %}
 </select>
 ```
@@ -221,21 +224,9 @@ You can give synchronized products their own on-site URLs. To set up the URI for
 
 If you would prefer your customers to view individual products on BigCommerce, clear out the **Product URI Format** field on the settings page, and use `product.bigcommerceUrl` instead of `product.url` in your templates.
 
-### Product Status
-
-A product’s `status` in Craft is a combination of its `bigcommerceStatus` attribute ('active', 'draft', or 'archived') and its enabled state. The former can only be changed from BigCommerce; the latter is set in the Craft control panel.
-
 > **Note**  
 > Statuses in Craft are often a synthesis of multiple properties. For example, an entry with the _Pending_ status just means it is `enabled` _and_ has a `postDate` in the future.
 
-In most cases, you’ll only need to display “Live” products, or those which are _Active_ in BigCommerce and _Enabled_ in Craft:
-
-| Status            | BigCommerce  | Craft    |
-| ----------------- | -------- | -------- |
-| `live`            | Active   | Enabled  |
-| `bigcommerceDraft`    | Draft    | Enabled  |
-| `bigcommerceArchived` | Archived | Enabled  |
-| `disabled`        | Any      | Disabled |
 
 ## Querying Products
 
@@ -265,18 +256,6 @@ Filter by BigCommerce product IDs.
   .one() %}
 ```
 
-#### `bigcommerceStatus`
-
-Directly query against the product’s status in BigCommerce.
-
-```twig
-{% set archivedProducts = craft.bigcommerceProducts
-  .bigcommerceStatus('archived')
-  .all() %}
-```
-
-Use the regular `.status()` param if you'd prefer to query against [synthesized status values](#product-status).
-
 #### `handle`
 
 Query by the product’s handle, in BigCommerce.
@@ -295,7 +274,7 @@ Find products by their “type” in BigCommerce.
 
 ```twig
 {% set upSells = craft.bigcommerceProducts
-  .productType(['apparel', 'accessories'])
+  .productType(['physical', 'digital'])
   .all() %}
 ```
 

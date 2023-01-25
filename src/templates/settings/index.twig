@@ -101,8 +101,8 @@
         }) }}
         {% set manageChannelsUrl = url('bigcommerce/channels') %}
         {{ forms.autosuggestField({
-            label: 'BigCommerce Sales Channel'|t('bigcommerce'),
-            instructions: '<a href="'~manageChannelsUrl~'">Manage channels</a>',
+            label: 'Sales Channel'|t('bigcommerce'),
+            instructions: "If you're not sure what this is, enter 1. <a class=\"go\" href=\"#{manageChannelsUrl}\">Manage channels</a>"|t('bigcommerce'),
             name: 'settings[defaultChannel]',
             required: true,
             value: settings.defaultChannel,
@@ -169,17 +169,6 @@ When we're ready for multi-channel support:
             errors: siteErrors|unique
         }) }}
         #}
-
-        {{ forms.autosuggestField({
-            label: 'Webhook Base URL Override'|t('bigcommerce'),
-            instructions: 'Override the base URL for webhooks. This is useful for local testing.'|t('bigcommerce'),
-            id: 'webhookBaseUrl',
-            name: 'settings[webhookBaseUrl]',
-            value: settings.webhookBaseUrl,
-            errors: settings.getErrors('webhookBaseUrl'),
-            suggestEnvVars: true,
-        }) }}
-
     </div>
 
 
