@@ -22,7 +22,6 @@ class CustomersController extends BigCommerceApiController
     public $enableCsrfValidation = true;
     public array|bool|int $allowAnonymous = ['register', 'login', 'save-profile', 'me', 'logout'];
 
-    public const CHANNEL_ID = 1;
 
     public function actionMe()
     {
@@ -77,8 +76,9 @@ class CustomersController extends BigCommerceApiController
         $client = Plugin::getInstance()->getApi()->getClient();
         $request = new CreateCustomerRequest();
         $request->attributes = \Craft::$app->request->getBodyParams();
-        $request->channel_ids = [static::CHANNEL_ID];
-        $request->customer_group_id = 2;
+        $channelId = Plugin::getInstance()->settings->getDefaultChannelId();
+        $request->channel_ids = [$channelId];
+//        $request->customer_group_id = 2;
 
         if (!$request->validate()) {
             return $this->asModelFailure($request, null, 'customer');

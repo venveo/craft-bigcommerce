@@ -11,7 +11,6 @@ class AddressesController extends BigCommerceApiController
     public $enableCsrfValidation = true;
     public array|bool|int $allowAnonymous = ['save', 'delete'];
 
-    public const CHANNEL_ID = 1;
 
     public function actionSave()
     {

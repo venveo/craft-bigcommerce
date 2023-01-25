@@ -15,6 +15,7 @@ class Cart implements ApiOperationInterface
     {
         $cartCookie = \Craft::$app->request->getCookies()->get('bc_cartId')?->value;
         $client = Plugin::getInstance()->getApi()->getClient();
+        $channelId = Plugin::getInstance()->settings->getDefaultChannelId();
         $cart = null;
         if ($cartCookie) {
             $cart = $client->cart($cartCookie)->get()?->getCart();
@@ -22,7 +23,7 @@ class Cart implements ApiOperationInterface
         if (!$cart && $create) {
             $customerId = Customer::getCurrentCustomerId();
             $cartModel = new \BigCommerce\ApiV3\ResourceModels\Cart\Cart();
-            $cartModel->channel_id = 1;
+            $cartModel->channel_id = $channelId;
             $cartModel->customer_id = $customerId;
             $cartModel->line_items = [];
             $cart = $client->carts()->create($cartModel)->getCart();

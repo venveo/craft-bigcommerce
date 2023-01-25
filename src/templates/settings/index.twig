@@ -2,11 +2,6 @@
 {% import '_includes/forms.twig' as forms %}
 {% set fullPageForm = true %}
 
-{% do view.registerTranslations('bigcommerce', [
-    "Topic",
-    "Address"
-]) %}
-
 {% block content %}
     {% set headlessMode = craft.app.config.general.headlessMode %}
     {{ actionInput('bigcommerce/settings/save-settings') }}
@@ -63,9 +58,11 @@
             label: 'API Client ID'|t('bigcommerce'),
             id: 'clientId',
             name: 'settings[clientId]',
+            required: true,
             value: settings.clientId,
             errors: settings.getErrors('clientId'),
             suggestEnvVars: true,
+            suggestAliases: true,
             autofocus: true,
         }) }}
 
@@ -73,18 +70,22 @@
             label: 'API Secret Key'|t('bigcommerce'),
             id: 'clientSecret',
             name: 'settings[clientSecret]',
+            required: true,
             value: settings.clientSecret,
             errors: settings.getErrors('clientSecret'),
             suggestEnvVars: true,
+            suggestAliases: true,
         }) }}
 
         {{ forms.autosuggestField({
             label: 'Access Token'|t('bigcommerce'),
             id: 'accessToken',
             name: 'settings[accessToken]',
+            required: true,
             value: settings.accessToken,
             errors: settings.getErrors('accessToken'),
             suggestEnvVars: true,
+            suggestAliases: true,
         }) }}
 
         {{ forms.autosuggestField({
@@ -92,16 +93,22 @@
             instructions: 'The BigCommerce store hash ID.'|t('bigcommerce'),
             id: 'storeHash',
             name: 'settings[storeHash]',
+            required: true,
             value: settings.storeHash,
             errors: settings.getErrors('storeHash'),
             suggestEnvVars: true,
+            suggestAliases: true,
         }) }}
-        {{ forms.selectizeField({
+        {% set manageChannelsUrl = url('bigcommerce/channels') %}
+        {{ forms.autosuggestField({
             label: 'BigCommerce Sales Channel'|t('bigcommerce'),
+            instructions: '<a href="'~manageChannelsUrl~'">Manage channels</a>',
             name: 'settings[defaultChannel]',
-            warning: not connected ? 'Please check and save your credentials.'|t('bigcommerce'),
+            required: true,
             value: settings.defaultChannel,
-            options: [{label: 'Select one', value: '', disabled: true}]|merge(channels|map(c => {label: c.name, value: c.id})),
+            errors: settings.getErrors('defaultChannel'),
+            suggestEnvVars: true,
+            suggestAliases: true,
         }) }}
 {#
 When we're ready for multi-channel support:

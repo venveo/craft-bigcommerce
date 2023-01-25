@@ -19,7 +19,6 @@ class CartController extends BigCommerceApiController
     public $enableCsrfValidation = false;
     public array|bool|int $allowAnonymous = ['add', 'delete-line-item', 'update-line-item', 'checkout'];
 
-    public const CHANNEL_ID = 1;
 
     public function actionAdd()
     {

@@ -34,7 +34,7 @@ class Settings extends Model
     public function rules(): array
     {
         return [
-            [['clientId', 'clientSecret', 'accessToken', 'storeHash'], 'required'],
+            [['clientId', 'clientSecret', 'accessToken', 'storeHash', 'defaultChannel'], 'required'],
         ];
     }
 
@@ -51,6 +51,7 @@ class Settings extends Model
             'webhookBaseUrl' => Craft::t('bigcommerce', 'Webhook Base URL'),
             'uriFormat' => Craft::t('bigcommerce', 'Product URI format'),
             'template' => Craft::t('bigcommerce', 'Product Template'),
+            'defaultChannel' => Craft::t('bigcommerce', 'Default Channel'),
         ];
     }
 
@@ -86,5 +87,9 @@ class Settings extends Model
             return $baseUrl;
         }
         return UrlHelper::actionUrl($path);
+    }
+
+    public function getDefaultChannelId(): int {
+        return (int)App::parseEnv($this->defaultChannel);
     }
 }
