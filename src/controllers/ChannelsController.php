@@ -8,6 +8,7 @@
 namespace venveo\bigcommerce\controllers;
 
 use BigCommerce\ApiV3\ResourceModels\Channel\Channel;
+use BigCommerce\ApiV3\ResourceModels\Channel\ChannelSite;
 use Craft;
 use craft\web\Controller;
 use venveo\bigcommerce\Plugin;
@@ -41,12 +42,15 @@ class ChannelsController extends Controller
         } catch (\Exception $exception) {
             $channels = [];
         }
-        return $this->renderTemplate('bigcommerce/channels/_index', ['channels' => $channels, 'connected' => $connected]);
+        return $this->renderTemplate('bigcommerce/channels/_index',
+            ['channels' => $channels, 'connected' => $connected]);
     }
 
 
-    public function actionEdit(int $channelId = null, Channel $channel = null) {
-        if($channel) {
+    public function actionEdit(int $channelId = null, Channel $channel = null)
+    {
+        $client = Plugin::getInstance()->api->getClient();
+        if ($channel) {
             $channel = $channel->jsonSerialize();
         }
         $statusOptions = [
@@ -57,19 +61,53 @@ class ChannelsController extends Controller
             'disconnected' => 'Disconnected',
             'archived' => 'Archived'
         ];
-        if($channelId) {
-            $channel = Plugin::getInstance()->api->getClient()->channel($channelId)->get()->getChannel()->jsonSerialize();
+        if ($channelId) {
+            $channelRequest = $client->channel($channelId);
+            $channel = $channelRequest->get()->getChannel()->jsonSerialize();
+            try {
+                $site = $channelRequest->site()->get()->getSite()->jsonSerialize();
+            } catch (\Exception $exception) {
+                $site = [];
+            }
         }
         return $this->renderTemplate('bigcommerce/channels/_edit.twig', [
             'statusOptions' => $statusOptions,
-            'channel' => $channel
+            'channel' => $channel,
+            'site' => $site
         ]);
     }
-    public function actionSaveChannel() {
+
+    public function actionSaveSite()
+    {
+        $channelId = $this->request->getRequiredBodyParam('channelId');
+        $url = $this->request->getRequiredBodyParam('url');
+        $client = Plugin::getInstance()->api->getClient();
+
+        $channelRequest = $client->channel($channelId);
+        $channel = $channelRequest->get()->getChannel();
+        $isNew = false;
+        try {
+            $site = $channelRequest->site()->get()->getSite();
+        } catch (\Exception $exception) {
+            $site = new ChannelSite();
+            $site->channel_id = $channel->id;
+            $isNew = true;
+        }
+        $site->url = $url;
+        if ($isNew) {
+            $site = $client->channel($channelId)->site()->create($site)->getSite();
+        } else {
+            $site = $client->channel($channelId)->site()->update($site)->getSite();
+        }
+        return $this->asSuccess('Site saved.');
+    }
+
+    public function actionSaveChannel()
+    {
         $channelName = $this->request->getRequiredBodyParam('name');
         $channelId = $this->request->getBodyParam('id');
         $status = $this->request->getBodyParam('status');
-        if($channelId) {
+        if ($channelId) {
             $channel = Plugin::getInstance()->api->getClient()->channel($channelId)->get()->getChannel();
         } else {
             $channel = new Channel();
@@ -83,10 +121,11 @@ class ChannelsController extends Controller
 
         try {
             Plugin::getInstance()->api->getClient()->channels()->create($channel);
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             Craft::error($exception->getMessage());
             Craft::error($exception->getTraceAsString());
-            return $this->asFailure('Failed to save channel. Please check your plan limits.', [], ['channel' => $channel]);
+            return $this->asFailure('Failed to save channel. Please check your plan limits.', [],
+                ['channel' => $channel]);
         }
         return $this->asSuccess('Channel saved');
     }

@@ -62,12 +62,14 @@ class Products extends Component
         $products = $api->getAllProducts();
 
         foreach ($products as $product) {
-            Craft::$app->getQueue()->push(new UpdateProductMetadata([
+            $this->createOrUpdateProduct($product);
+            $job = new UpdateProductMetadata([
                 'description' => Craft::t('bigcommerce', 'Updating product metadata for “{title}”', [
                     'title' => $product->name,
                 ]),
                 'bcProductId' => $product->id,
-            ]));
+            ]);
+            Craft::$app->getQueue()->push($job);
         }
 
         // Remove any products that are no longer in BigCommerce just in case.
