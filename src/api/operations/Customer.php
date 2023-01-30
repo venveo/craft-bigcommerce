@@ -67,9 +67,12 @@ query {
   }
 }
 EOD;
-
-        $response = ApiHelper::sendGraphQLRequest($customerQuery, null, true);
-        $current = Json::decodeIfJson($response->getBody()->getContents())['data']['customer'] ?? null;
+        try {
+            $response = ApiHelper::sendGraphQLRequest($customerQuery, null, true);
+            $current = Json::decodeIfJson($response->getBody()->getContents())['data']['customer'] ?? null;
+        } catch (\Exception $exception) {
+            $current = null;
+        }
         if ($current !== null) {
             static::$currentCustomerId = $current['entityId'];
         } else {

@@ -92,7 +92,7 @@ class CustomersController extends BigCommerceApiController
             $customer = $client->customers()->create([$request->createPayload()])->getCustomers()[0];
             $redirectUrl = $this->getPostedRedirectUrl();
             $loginUrl = Plugin::getInstance()->getApi()->getCustomerLoginUrl($customer->id,
-                UrlHelper::siteUrl($redirectUrl, ['bc_login' => 1]));
+                UrlHelper::siteUrl($redirectUrl, ['bc_login' => 1]), null, $channelId);
             return $this->redirect($loginUrl);
         } catch (\Exception $e) {
             return $this->asModelFailure($request, 'Failed to create customer: ' . $e->getMessage(), 'customer');
