@@ -647,6 +647,7 @@ class Product extends Element
             case 'bcStatus':
                 return $this->getBigCommerceStatusHtml();
             case 'bcId':
+                return $this->bcId;
             case 'sku':
                 return $this->sku ?? '';
             case 'options':
