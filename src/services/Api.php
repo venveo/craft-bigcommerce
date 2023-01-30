@@ -15,6 +15,7 @@ use craft\helpers\App;
 use Firebase\JWT\JWT;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Collection;
 use venveo\bigcommerce\base\SdkClientTrait;
 use venveo\bigcommerce\Plugin;
 
@@ -38,9 +39,9 @@ class Api extends Component
      *
      * @return Product[]
      */
-    public function getAllProducts(): array
+    public function getAllProducts(): Collection
     {
-        return $this->getClient()->catalog()->products()->getAllPages()->getProducts();
+        return collect($this->getClient()->catalog()->products()->getAllPages()->getProducts());
     }
 
     /**

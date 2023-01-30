@@ -9,11 +9,13 @@ use craft\base\Component;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
+use Illuminate\Support\Collection;
+use venveo\bigcommerce\base\SdkClientTrait;
+use venveo\bigcommerce\elements\Product;
 use venveo\bigcommerce\elements\Product as ProductElement;
 use venveo\bigcommerce\events\BigCommerceProductSyncEvent;
 use venveo\bigcommerce\Plugin;
 use venveo\bigcommerce\records\ProductData as ProductDataRecord;
-use venveo\bigcommerce\helpers\Metafields as MetafieldsHelper;
 use venveo\bigcommerce\jobs\UpdateProductMetadata;
 
 /**
@@ -27,6 +29,7 @@ use venveo\bigcommerce\jobs\UpdateProductMetadata;
  */
 class Products extends Component
 {
+    use SdkClientTrait;
     /**
      * @event BigCommerceProductSyncEvent Event triggered just before BigCommerce product data is saved to a product element.
      *
@@ -59,23 +62,28 @@ class Products extends Component
     public function syncAllProducts(): void
     {
         $api = Plugin::getInstance()->getApi();
-        $products = $api->getAllProducts();
+        $channelId = Plugin::getInstance()->settings->getDefaultChannelId();
+        // Omit products that aren't enabled for our channel
+        $products = $api->getAllProducts()->where(function($product) use ($channelId) {
+            $channels = $this->getProductActiveChannels($product->id);
+            return $channels->contains($channelId);
+        });
+
 
         foreach ($products as $product) {
-            $this->createOrUpdateProduct($product);
-            $job = new UpdateProductMetadata([
-                'description' => Craft::t('bigcommerce', 'Updating product metadata for “{title}”', [
-                    'title' => $product->name,
-                ]),
-                'bcProductId' => $product->id,
-            ]);
-            Craft::$app->getQueue()->push($job);
+                $this->createOrUpdateProduct($product);
+                $job = new UpdateProductMetadata([
+                    'description' => Craft::t('bigcommerce', 'Updating product metadata for “{title}”', [
+                        'title' => $product->name,
+                    ]),
+                    'bcProductId' => $product->id,
+                ]);
+                Craft::$app->getQueue()->push($job);
         }
 
         // Remove any products that are no longer in BigCommerce just in case.
         $bcIds = ArrayHelper::getColumn($products, 'id');
-        $deletableProductElements = ProductElement::find()->bcId(['not', $bcIds])->all();
-
+        $deletableProductElements = ProductElement::find()->bcId(['NOT', $bcIds]);
         foreach ($deletableProductElements as $element) {
             Craft::$app->elements->deleteElement($element);
         }
@@ -95,6 +103,14 @@ class Products extends Component
         $variants = $api->getVariantsByProductId($id);
         $options = $api->getOptionsByProductId($id);
         $this->createOrUpdateProduct($product, $metafields, $variants, $options);
+    }
+
+    public function getProductActiveChannels(int $productId): Collection {
+        $channelAssociations = json_decode($this->getClient()->getRestClient()->get('catalog/products/channel-assignments', [
+            'query' => ['product_id:in' => $productId]
+        ])->getBody()->getContents(), true);
+        $data = collect($channelAssociations['data'])->keyBy('channel_id')->keys();
+        return $data;
     }
 
     /**

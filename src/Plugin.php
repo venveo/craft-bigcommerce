@@ -304,7 +304,7 @@ class Plugin extends BasePlugin
     private function _registerSiteRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
-            $event->rules['bigcommerce/webhook/handle'] = 'bigcommerce/webhook/handle';
+            $event->rules['bigcommerce/webhook/handle'] = 'bigcommerce/webhook-handler/handle';
             $event->rules['bigcommerce/customers/register'] = 'bigcommerce/customers/register';
             $event->rules['bigcommerce/customers/login'] = 'bigcommerce/customers/login';
             $event->rules['bigcommerce/customers/save'] = 'bigcommerce/customers/save';
