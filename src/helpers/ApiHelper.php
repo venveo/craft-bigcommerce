@@ -10,7 +10,7 @@ class ApiHelper
     {
         $expiresIn = 60 * 60 * 24 * 30;
         $channelId = Plugin::getInstance()->settings->getDefaultChannelId();
-        return \Craft::$app->cache->getOrSet('bigcommerce.api.token', function () use ($expiresIn, $channelId) {
+        return \Craft::$app->cache->getOrSet('bigcommerce.api.token.'.$channelId, function () use ($expiresIn, $channelId) {
             $client = Plugin::getInstance()->getApi()->getClient()->getRestClient();
             $response = $client->post('storefront/api-token', [
                 'json' => [
@@ -50,6 +50,7 @@ class ApiHelper
             'json' => $body
         ];
         if ($asCustomer && $cookie = \Craft::$app->request->getCookies()?->get('SHOP_TOKEN')?->value) {
+            // NOTE: Could also use header: X-Bc-Customer-Id: 123
             if ($cookie) {
                 $headers['cookie'] = 'SHOP_TOKEN=' . $cookie;
             }

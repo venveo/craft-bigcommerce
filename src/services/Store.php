@@ -21,14 +21,16 @@ class Store extends Component
      *
      * @param string $path
      * @param array $params
-     * @throws InvalidConfigException when no hostname is set up.
+     * @param string|int|null $channelId - optional channel ID override
      * @return string
+     *@throws InvalidConfigException when no hostname is set up.
      */
-    public function getUrl(string $path = '', array $params = []): string
+    public function getUrl(string $path = '', array $params = [], string|int $channelId = null): string
     {
         $settings = Plugin::getInstance()->getSettings();
         $storeHash = App::parseEnv($settings->storeHash);
-        $host = 'store-'.$storeHash.'.mybigcommerce.com';
+        $channelId = $channelId ?? $settings->getDefaultChannelId();
+        $host = 'store-'.$storeHash.'-'.$channelId.'.mybigcommerce.com';
 
         if (!$host) {
             throw new InvalidConfigException('BigCommerce URLs cannot be generated without a hostname configured.');
