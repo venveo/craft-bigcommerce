@@ -27,7 +27,12 @@ class Orders extends Component
         }
         $filters = ['customer_id' => $customerId];
         $client = Plugin::getInstance()->getApi()->getV2Client();
-        return $client->orders()->getAll($filters);
+        try {
+            return $client->orders()->getAll($filters);
+        } catch (\TypeError $exception) {
+            // Note: When there are no orders, the SDK blows up since the response is "null" instead of an empty array.
+            return [];
+        }
     }
 
     public function getOrderDetails(int $orderId, int $customerId = null): ?array
