@@ -206,7 +206,7 @@ class ProductQuery extends ElementQuery
         ]);
 
         if (isset($this->bcId)) {
-            $this->subQuery->andWhere(['bigcommerce_productdata.bcId' => $this->bcId]);
+            $this->subQuery->andWhere(Db::parseParam('bigcommerce_productdata.bcId', $this->bcId));
         }
 
         if (isset($this->productType)) {

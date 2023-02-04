@@ -21,10 +21,13 @@ use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\UrlHelper;
+use craft\log\MonologTarget;
 use craft\models\FieldLayout;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Utilities;
+use Monolog\Formatter\LineFormatter;
+use Psr\Log\LogLevel;
 use venveo\bigcommerce\elements\Product;
 use venveo\bigcommerce\fields\Products as ProductsField;
 use venveo\bigcommerce\models\Settings;
@@ -118,7 +121,7 @@ class Plugin extends BasePlugin
     public function init()
     {
         $request = Craft::$app->getRequest();
-
+        $this->_setupLogger();
         $this->_registerElementTypes();
         $this->_registerUtilityTypes();
         $this->_registerFieldTypes();
@@ -155,6 +158,24 @@ class Plugin extends BasePlugin
             // Invalidate product caches
             Craft::$app->getElements()->invalidateCachesForElementType(Product::class);
         });
+    }
+
+    protected function _setupLogger() {
+        if ($dispatcher = Craft::getLogger()->dispatcher) {
+            $dispatcher->targets[] = new MonologTarget([
+                'name' => 'bigcommerce',
+                'categories' => ['bigcommerce'],
+                'level' => LogLevel::INFO,
+                'allowLineBreaks' => true,
+                'maxFiles' => 10,
+                'logVars' => ['_GET', '_POST'],
+                'formatter' => new LineFormatter(
+                    format: "%datetime% [%level_name%] %message%\n",
+                    dateFormat: 'Y-m-d H:i:s',
+                    allowInlineLineBreaks: true,
+                ),
+            ]);
+        }
     }
 
     /**

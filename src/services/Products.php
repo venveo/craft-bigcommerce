@@ -61,6 +61,7 @@ class Products extends Component
      */
     public function syncAllProducts(): void
     {
+
         $api = Plugin::getInstance()->getApi();
         $channelId = Plugin::getInstance()->settings->getDefaultChannelId();
         // Omit products that aren't enabled for our channel
@@ -78,12 +79,16 @@ class Products extends Component
                     ]),
                     'bcProductId' => $product->id,
                 ]);
-                Craft::$app->getQueue()->push($job);
+                if (Craft::$app->request->isConsoleRequest) {
+                    $job->execute(Craft::$app->queue);
+                } else {
+                    Craft::$app->getQueue()->push($job);
+                }
         }
 
         // Remove any products that are no longer in BigCommerce just in case.
         $bcIds = ArrayHelper::getColumn($products, 'id');
-        $deletableProductElements = ProductElement::find()->bcId(['NOT', $bcIds]);
+        $deletableProductElements = ProductElement::find()->bcId(['NOT', $bcIds])->all();
         foreach ($deletableProductElements as $element) {
             Craft::$app->elements->deleteElement($element);
         }
@@ -171,6 +176,7 @@ class Products extends Component
             /** @var ProductElement $productElement */
             $productElement = new ProductElement();
         }
+        $productElement->title = $attributes['title'];
 
         // Set attributes on the element to emulate it having been loaded with JOINed data:
         $productElement->setAttributes($attributes, false);

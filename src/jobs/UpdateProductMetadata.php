@@ -22,13 +22,8 @@ class UpdateProductMetadata extends BaseJob
         $api = Plugin::getInstance()->getApi();
         $product = Product::find()->bcId($this->bcProductId)->one();
         if ($product) {
-            $metaFields = $api->getMetafieldsByProductId($this->bcProductId);
-            $variants = $api->getVariantsByProductId($this->bcProductId);
-            $options = $api->getOptionsByProductId($this->bcProductId);
-            $product->setMetafields($metaFields);
-            $product->setVariants($variants);
-            $product->setOptions($options);
-            Craft::$app->elements->saveElement($product);
+            Plugin::getInstance()->products->syncProductByBcId($this->bcProductId);
+//            Craft::$app->elements->saveElement($product);
             sleep(1); // Avoid rate limiting
         }
     }
