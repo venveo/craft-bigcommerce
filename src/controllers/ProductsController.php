@@ -47,7 +47,7 @@ class ProductsController extends \craft\web\Controller
      */
     public function actionSync(): Response
     {
-        $this->requireAdmin();
+        $this->requireAdmin(false);
         Plugin::getInstance()->getProducts()->syncAllProducts();
         return $this->asSuccess(Craft::t('bigcommerce','Products successfully synced'));
     }
