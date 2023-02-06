@@ -40,7 +40,8 @@ class WebhookHandlerController extends Controller
         $request = Craft::$app->getRequest();
         $headers = $request->headers->toArray();
         $body = Json::decode($request->getRawBody());
-        if (!isset($headers['x-secret']) || $headers['x-secret'] !== $pluginSettings->webhookSecret) {
+        // NOTE: For some reason BigCommerce stores the custom headers as an array
+        if (!isset($headers['x-secret'][0]) || $headers['x-secret'][0] !== $pluginSettings->webhookSecret) {
             Craft::warning('Received webhook with missing or incorrect secret', __METHOD__);
             $this->response->setStatusCode(200);
             return $this->asRaw('OK');
