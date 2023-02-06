@@ -110,6 +110,17 @@
             suggestEnvVars: true,
             suggestAliases: true,
         }) }}
+
+        {{ forms.autosuggestField({
+            label: 'Webhook Secret'|t('bigcommerce'),
+            instructions: "Enter a random string to use to validate the authenticity of webhooks. This should be at least 16 characters long."|t('bigcommerce'),
+            name: 'settings[webhookSecret]',
+            required: true,
+            value: settings.webhookSecret,
+            errors: settings.getErrors('webhookSecret'),
+            suggestEnvVars: true,
+            suggestAliases: true,
+        }) }}
 {#
 When we're ready for multi-channel support:
 

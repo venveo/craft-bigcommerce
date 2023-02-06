@@ -32,6 +32,8 @@ class WebhooksController extends Controller
      */
     public function actionEdit(): YiiResponse
     {
+        $settings = Plugin::getInstance()->settings;
+        $this->requireAdmin(false);
         $view = $this->getView();
         $view->registerAssetBundle(AdminTableAsset::class);
         $webhooks = collect(Json::decode($this->getClient()->getRestClient()->get('hooks')->getBody())['data'] ?? []);
@@ -39,19 +41,12 @@ class WebhooksController extends Controller
         // If we don't have all webhooks needed for the current environment show the create button
 
         $containsAllWebhooks = (
-            $webhooks->contains(function($item) {
-                return str_contains($item['destination'], Craft::$app->getRequest()->getHostName()) && $item['scope'] === 'store/product/created';
-            }) &&
-            $webhooks->contains(function($item) {
-                return str_contains($item['destination'], Craft::$app->getRequest()->getHostName()) && $item['scope'] === 'store/product/deleted';
-            }) &&
-            $webhooks->contains(function($item) {
-                return str_contains($item['destination'], Craft::$app->getRequest()->getHostName()) && $item['scope'] === 'store/product/updated';
-            })
+            $webhooks->contains($this->validateWebhook('store/product/deleted', $settings->webhookSecret)) &&
+            $webhooks->contains($this->validateWebhook('store/product/created', $settings->webhookSecret)) &&
+            $webhooks->contains($this->validateWebhook('store/product/updated', $settings->webhookSecret))
         );
 
-
-        return $this->renderTemplate('bigcommerce/webhooks/_index', compact('webhooks', 'containsAllWebhooks'));
+        return $this->renderTemplate('bigcommerce/webhooks/_index', compact('webhooks', 'containsAllWebhooks', 'settings'));
     }
 
     /**
@@ -61,6 +56,7 @@ class WebhooksController extends Controller
      */
     public function actionCreate(): YiiResponse
     {
+        $this->requireAdmin(false);
         $this->requirePostRequest();
         $baseUrlOverride = $this->request->getBodyParam('baseUrlOverride');
 
@@ -70,38 +66,36 @@ class WebhooksController extends Controller
         $pluginSettings = Plugin::getInstance()->getSettings();
         $destination = $pluginSettings->getWebhookUrl($baseUrlOverride);
 
-        $responseDelete = $this->getClient()->getRestClient()->post('hooks', [
+        $webhookData = [
             'json' => [
-                'scope' => ProductHandler::PRODUCT_DELETE,
                 'destination' => $destination,
                 'is_active' => true,
-                'events_history_enabled' => true
+                'events_history_enabled' => true,
+                'headers' => [
+                    'x-secret' => $pluginSettings->webhookSecret
+                ]
             ]
-        ]);
+        ];
+        $created = false;
+        try {
+            $webhookData['json']['scope'] = ProductHandler::PRODUCT_CREATE;
+            $this->getClient()->getRestClient()->post('hooks', $webhookData);
+            $webhookData['json']['scope'] = ProductHandler::PRODUCT_UPDATE;
+            $this->getClient()->getRestClient()->post('hooks', $webhookData);
+            $webhookData['json']['scope'] = ProductHandler::PRODUCT_DELETE;
+            $this->getClient()->getRestClient()->post('hooks', $webhookData);
+            $created = true;
+        } catch (\Exception $exception) {
+            Craft::error($exception->getMessage(), __METHOD__);
+            Craft::error($exception->getTraceAsString(), __METHOD__);
+        }
 
-        $responseCreate = $this->getClient()->getRestClient()->post('hooks', [
-            'json' => [
-                'scope' => ProductHandler::PRODUCT_CREATE,
-                'destination' => $destination,
-                'is_active' => true,
-                'events_history_enabled' => true
-            ]
-        ]);
+        if ($created) {
+            $this->setSuccessFlash(Craft::t('bigcommerce', 'Webhooks registered.'));
+        } else {
+            $this->setFailFlash(Craft::t('bigcommerce', 'One or more webhooks could not be created'));
+        }
 
-        $responseUpdate = $this->getClient()->getRestClient()->post('hooks', [
-            'json' => [
-                'scope' => ProductHandler::PRODUCT_UPDATE,
-                'destination' => $destination,
-                'is_active' => true,
-                'events_history_enabled' => true
-            ]
-        ]);
-
-//        if (!$responseCreate->isSuccess() || !$responseUpdate->isSuccess() || !$responseDelete->isSuccess()) {
-//            Craft::error('Could not register webhooks with BigCommerce API.', __METHOD__);
-//        }
-
-        $this->setSuccessFlash(Craft::t('app', 'Webhooks registered.'));
         return $this->redirectToPostedUrl();
     }
 
@@ -112,6 +106,7 @@ class WebhooksController extends Controller
      */
     public function actionDelete(): YiiResponse
     {
+        $this->requireAdmin(false);
         $this->requireAcceptsJson();
         $id = Craft::$app->getRequest()->getBodyParam('id');
 
@@ -121,5 +116,18 @@ class WebhooksController extends Controller
         }
 
         return $this->asSuccess(Craft::t('bigcommerce', 'Webhook could not be deleted'));
+    }
+
+    /**
+     * @return \Closure
+     */
+    protected function validateWebhook(string $scope, string $secret): \Closure
+    {
+        return static function ($item) use ($scope, $secret) {
+            return $item['is_active'] &&
+                str_contains($item['destination'], Craft::$app->getRequest()->getHostName()) &&
+                isset($item['headers']['x-secret']) && $item['headers']['x-secret'] === $secret &&
+                $item['scope'] === $scope;
+        };
     }
 }

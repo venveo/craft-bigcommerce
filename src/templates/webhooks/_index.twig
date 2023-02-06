@@ -9,7 +9,6 @@
 
 {% block content %}
 
-    <h3>{{ "Webhook Management"|t('bigcommerce') }}</h3>
 
     <div class="{{ containsAllWebhooks ? 'hidden' : '' }}">
         <p>{{ "Create the webhooks for the current environment."|t('bigcommerce') }}</p>
@@ -36,17 +35,48 @@
 
     {% set tableData = [] %}
     {% for webhook in webhooks %}
+        {% set expectedSecret = settings.webhookSecret %}
+        {% set hasSecret = webhook.headers['x-secret'] is defined %}
+        {% set secret = webhook.headers['x-secret'] ?? null %}
+        {% set secretMatches = hasSecret and secret == expectedSecret %}
+
+        {% set secretState = 'missing' %}
+        {% if hasSecret and secretMatches %}
+            {% set secretState = 'matches' %}
+        {% elseif hasSecret and not secretMatches %}
+            {% set secretState = 'mismatch' %}
+        {% endif %}
         {% set tableData = tableData|merge([{
             id: webhook.id,
+            is_active: webhook.is_active,
+            secret_status: secretState,
+            created_at: webhook.created_at|datetime('long'),
             title: webhook.scope,
             address: webhook.destination
         }]) %}
     {% endfor %}
 
     {% js %}
+        var isActiveCallback = function(value) {
+            return value ? '<span class="status live" role="img" aria-label="Status: Active"></span>' :
+                    '<span class="status expired" role="img" aria-label="Status: Inactive"></span>';
+        };
+        var secretCallback = function(value) {
+            if (value === 'missing') {
+                return '<span class="status expired" role="img" aria-label="Status: Missing"></span> Missing';
+            }
+            if (value === 'matches') {
+                return '<span class="status live" role="img" aria-label="Status: Match"></span> Matches';
+            }
+            return '<span class="status pending" role="img" aria-label="Status: Mismatch"></span> Mismatch';
+        };
+
         var columns = [
-        { name: '__slot:title', title: '{{ 'Topic'|t('bigcommerce') }}' },
-        { name: 'address', title: '{{ 'URL'|t('bigcommerce') }}' }
+            { name: '__slot:title', title: Craft.t('bigcommerce', 'Topic') },
+            { name: 'address', title: Craft.t('bigcommerce', 'URL') },
+            { name: 'created_at', title: Craft.t('bigcommerce', 'Date Created') },
+            { name: 'is_active', title: Craft.t('bigcommerce', 'Is Active'), callback: isActiveCallback },
+            { name: 'secret_status', title: Craft.t('bigcommerce', 'Secret'), callback: secretCallback },
         ];
 
         new Craft.VueAdminTable({
@@ -58,10 +88,7 @@
         deleteFailMessage: Craft.t('bigcommerce', "Webhook could not be deleted"),
         deleteSuccessMessage: Craft.t('bigcommerce', "Webhook deleted"),
         emptyMessage: Craft.t('bigcommerce', 'No webhooks exist yet.'),
-        tableData: {{ tableData|json_encode|raw }},
-        deleteCallback: function(){
-        window.location.reload(); // We need to reload to get the create button showing again
-        }
+        tableData: {{ tableData|json_encode|raw }}
         });
     {% endjs %}
 {% endblock %}

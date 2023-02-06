@@ -9,6 +9,7 @@ namespace venveo\bigcommerce\models;
 
 use Craft;
 use craft\base\Model;
+use craft\behaviors\EnvAttributeParserBehavior;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
 use venveo\bigcommerce\elements\Product;
@@ -30,12 +31,14 @@ class Settings extends Model
     public string $uriFormat = '';
     public string $template = '';
     public string $defaultChannel = '';
+    public string $webhookSecret = '';
     private mixed $_productFieldLayout;
 
     public function rules(): array
     {
         return [
-            [['clientId', 'clientSecret', 'accessToken', 'storeHash', 'defaultChannel'], 'required'],
+            [['clientId', 'clientSecret', 'accessToken', 'storeHash', 'defaultChannel', 'webhookSecret'], 'required'],
+            [['webhookSecret'], 'string', 'min' => 16],
         ];
     }
 
@@ -52,6 +55,7 @@ class Settings extends Model
             'uriFormat' => Craft::t('bigcommerce', 'Product URI format'),
             'template' => Craft::t('bigcommerce', 'Product Template'),
             'defaultChannel' => Craft::t('bigcommerce', 'Default Channel'),
+            'webhookSecret' => Craft::t('bigcommerce', 'Webhook Secret'),
         ];
     }
 
@@ -91,5 +95,15 @@ class Settings extends Model
 
     public function getDefaultChannelId(): int {
         return (int)App::parseEnv($this->defaultChannel);
+    }
+
+    protected function defineBehaviors(): array
+    {
+        return [
+            'parser' => [
+                'class' => EnvAttributeParserBehavior::class,
+                'attributes' => ['clientId', 'clientSecret', 'accessToken', 'storeHash', 'webhookSecret', 'defaultChannel'],
+            ],
+        ];
     }
 }

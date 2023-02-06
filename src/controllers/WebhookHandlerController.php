@@ -9,9 +9,10 @@ namespace venveo\bigcommerce\controllers;
 
 use Craft;
 use craft\helpers\Json;
+use craft\web\Controller;
 use venveo\bigcommerce\base\SdkClientTrait;
 use venveo\bigcommerce\handlers\Product;
-use craft\web\Controller;
+use venveo\bigcommerce\Plugin;
 use yii\web\Response as YiiResponse;
 
 /**
@@ -35,11 +36,15 @@ class WebhookHandlerController extends Controller
      */
     public function actionHandle(): YiiResponse
     {
+        $pluginSettings = Plugin::getInstance()->getSettings();
         $request = Craft::$app->getRequest();
-
         $headers = $request->headers->toArray();
         $body = Json::decode($request->getRawBody());
-
+        if (!isset($headers['x-secret']) || $headers['x-secret'] !== $pluginSettings->webhookSecret) {
+            Craft::warning('Received webhook with missing or incorrect secret', __METHOD__);
+            $this->response->setStatusCode(200);
+            return $this->asRaw('OK');
+        }
         try {
             $handler = new Product();
             $handler->handle($body['scope'], $body['store_id'], $body['data']);
