@@ -11,7 +11,7 @@ use yii\base\InvalidConfigException;
 /**
  * BigCommerce Store service.
  *
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @author Venveo <development@venveo.com>
  * @since 3.0
  */
 class Store extends Component
@@ -21,16 +21,20 @@ class Store extends Component
      *
      * @param string $path
      * @param array $params
-     * @param string|int|null $channelId - optional channel ID override
+     * @param int|null $channelId - optional channel ID override
      * @return string
-     *@throws InvalidConfigException when no hostname is set up.
+     * @throws InvalidConfigException when no hostname is set up.
      */
-    public function getUrl(string $path = '', array $params = [], string|int $channelId = null): string
+    public function getUrl(string $path = '', array $params = [], ?int $channelId = null): string
     {
         $settings = Plugin::getInstance()->getSettings();
         $storeHash = App::parseEnv($settings->storeHash);
         $channelId = $channelId ?? $settings->getDefaultChannelId();
-        $host = 'store-'.$storeHash.'-'.$channelId.'.mybigcommerce.com';
+        if ($channelId === 1) {
+            $host = 'store-' . $storeHash . '.mybigcommerce.com';
+        } else {
+            $host = 'store-' . $storeHash . '-' . $channelId . '.mybigcommerce.com';
+        }
 
         if (!$host) {
             throw new InvalidConfigException('BigCommerce URLs cannot be generated without a hostname configured.');
