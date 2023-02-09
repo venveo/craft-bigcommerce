@@ -38,6 +38,7 @@ use venveo\bigcommerce\services\Customers;
 use venveo\bigcommerce\services\Orders;
 use venveo\bigcommerce\services\Products;
 use venveo\bigcommerce\services\Store;
+use venveo\bigcommerce\services\Webhooks;
 use venveo\bigcommerce\utilities\Sync;
 use venveo\bigcommerce\web\twig\CraftVariableBehavior;
 use craft\web\twig\variables\CraftVariable;
@@ -60,6 +61,7 @@ use yii\base\InvalidConfigException;
  * @property-read mixed $settingsResponse
  * @property-read Addresses $addresses
  * @property-read Orders $orders
+ * @property-read Webhooks $webhooks
  * @method Settings getSettings()
  */
 class Plugin extends BasePlugin
@@ -95,6 +97,7 @@ class Plugin extends BasePlugin
                 'cart' => ['class' => Cart::class],
                 'addresses' => ['class' => Addresses::class],
                 'orders' => ['class' => Orders::class],
+                'webhooks' => ['class' => Webhooks::class],
             ],
         ];
     }
@@ -178,13 +181,6 @@ class Plugin extends BasePlugin
         }
     }
 
-    /**
-     * Returns the API service
-     *
-     * @return Api The API service
-     * @throws InvalidConfigException
-     * @since 3.0
-     */
     public function getApi(): Api
     {
         return $this->get('api');
@@ -200,25 +196,16 @@ class Plugin extends BasePlugin
         return $this->get('addresses');
     }
 
-    /**
-     * Returns the ProductData service
-     *
-     * @return Products The Products service
-     * @throws InvalidConfigException
-     * @since 3.0
-     */
+    public function getWebhooks(): Webhooks
+    {
+        return $this->get('webhooks');
+    }
+
     public function getProducts(): Products
     {
         return $this->get('products');
     }
 
-    /**
-     * Returns the API service
-     *
-     * @return Store The Store service
-     * @throws InvalidConfigException
-     * @since 3.0
-     */
     public function getStore(): Store
     {
         return $this->get('store');

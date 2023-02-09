@@ -23,7 +23,7 @@
             {{ actionInput('bigcommerce/webhooks/create') }}
             {{ redirectInput('bigcommerce/webhooks') }}
             {{ csrfInput() }}
-            <button class="btn primary" type="submit">{{ "Create"|t('bigcommerce') }}</button>
+            <button class="btn primary" type="submit">{{ "Create Webhooks"|t('bigcommerce') }}</button>
         </form>
     </div>
 
@@ -35,7 +35,7 @@
 
     {% set tableData = [] %}
     {% for webhook in webhooks %}
-        {% set expectedSecret = settings.webhookSecret %}
+        {% set expectedSecret = settings.getWebhookSecret(true) %}
         {% set hasSecret = webhook.headers['x-secret'] is defined %}
         {% set secret = webhook.headers['x-secret'] ?? null %}
         {% set secretMatches = hasSecret and secret == expectedSecret %}

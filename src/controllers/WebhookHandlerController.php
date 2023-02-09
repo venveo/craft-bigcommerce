@@ -36,12 +36,12 @@ class WebhookHandlerController extends Controller
      */
     public function actionHandle(): YiiResponse
     {
-        $pluginSettings = Plugin::getInstance()->getSettings();
+        $pluginSettings = Plugin::getInstance()->settings;
         $request = Craft::$app->getRequest();
         $headers = $request->headers->toArray();
         $body = Json::decode($request->getRawBody());
         // NOTE: For some reason BigCommerce stores the custom headers as an array
-        if (!isset($headers['x-secret'][0]) || $headers['x-secret'][0] !== $pluginSettings->webhookSecret) {
+        if (!isset($headers['x-secret'][0]) || $headers['x-secret'][0] !== $pluginSettings->getWebhookSecret(true)) {
             Craft::warning('Received webhook with missing or incorrect secret', __METHOD__);
             $this->response->setStatusCode(200);
             return $this->asRaw('OK');

@@ -60,19 +60,6 @@ class Settings extends Model
         $this->_productFieldLayout = $fieldLayout;
     }
 
-    /**
-     * @param string|null $baseUrlOverride
-     * @return string
-     */
-    public function getWebhookUrl(?string $baseUrlOverride): string
-    {
-        $path = 'bigcommerce/webhook/handle';
-        if ($baseUrlOverride && $baseUrl = App::parseEnv($baseUrlOverride)) {
-            return UrlHelper::url($baseUrl . '/' . $path);
-        }
-        return UrlHelper::actionUrl($path);
-    }
-
 
     public function getClientId(bool $parse = false): string
     {
