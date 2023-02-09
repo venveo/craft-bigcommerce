@@ -21,10 +21,10 @@ trait SdkClientTrait {
     {
         if ($this->_client === null) {
             $pluginSettings = Plugin::getInstance()->getSettings();
-            $apiClientId = App::parseEnv($pluginSettings->clientId);
-            $apiSecretKey = App::parseEnv($pluginSettings->clientSecret);
-            $storeHash = App::parseEnv($pluginSettings->storeHash);
-            $accessToken = App::parseEnv($pluginSettings->accessToken);
+            $apiClientId = $pluginSettings->getClientId(true);
+//            $apiSecretKey = $pluginSettings->getClientSecret(true);
+            $storeHash = $pluginSettings->getStoreHash(true);
+            $accessToken = $pluginSettings->getAccessToken(true);
 
             $this->_client = new \BigCommerce\ApiV3\Client($storeHash, $apiClientId, $accessToken);
         }
@@ -35,10 +35,10 @@ trait SdkClientTrait {
     public function getV2Client() {
         if ($this->_v2Client === null) {
             $pluginSettings = Plugin::getInstance()->getSettings();
-            $apiClientId = App::parseEnv($pluginSettings->clientId);
-            $apiSecretKey = App::parseEnv($pluginSettings->clientSecret);
-            $storeHash = App::parseEnv($pluginSettings->storeHash);
-            $accessToken = App::parseEnv($pluginSettings->accessToken);
+            $apiClientId = $pluginSettings->getClientId(true);
+//            $apiSecretKey = $pluginSettings->getClientSecret(true);
+            $storeHash = $pluginSettings->getStoreHash(true);
+            $accessToken = $pluginSettings->getAccessToken(true);
 
             $this->_v2Client = new \BigCommerce\ApiV2\V2ApiClient($storeHash, $apiClientId, $accessToken);
         }

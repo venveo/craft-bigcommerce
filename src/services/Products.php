@@ -63,7 +63,7 @@ class Products extends Component
     {
 
         $api = Plugin::getInstance()->getApi();
-        $channelId = Plugin::getInstance()->settings->getDefaultChannelId();
+        $channelId = Plugin::getInstance()->settings->getDefaultChannel(true);
         // Omit products that aren't enabled for our channel
         $products = $api->getAllProducts()->where(function($product) use ($channelId) {
             $channels = $this->getProductActiveChannels($product->id);

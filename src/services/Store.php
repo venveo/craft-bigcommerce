@@ -28,8 +28,8 @@ class Store extends Component
     public function getUrl(string $path = '', array $params = [], ?int $channelId = null): string
     {
         $settings = Plugin::getInstance()->getSettings();
-        $storeHash = App::parseEnv($settings->storeHash);
-        $channelId = $channelId ?? $settings->getDefaultChannelId();
+        $storeHash = $settings->getStoreHash(true);
+        $channelId = $channelId ?? $settings->getDefaultChannel(true);
         if ($channelId === 1) {
             $host = 'store-' . $storeHash . '.mybigcommerce.com';
         } else {

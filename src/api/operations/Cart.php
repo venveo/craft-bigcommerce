@@ -2,9 +2,7 @@
 
 namespace venveo\bigcommerce\api\operations;
 
-use craft\helpers\Json;
 use venveo\bigcommerce\base\ApiOperationInterface;
-use venveo\bigcommerce\helpers\ApiHelper;
 use venveo\bigcommerce\Plugin;
 use yii\web\Cookie;
 use yii\web\Request;
@@ -15,7 +13,7 @@ class Cart implements ApiOperationInterface
     {
         $cartCookie = \Craft::$app->request->getCookies()->get('bc_cartId')?->value;
         $client = Plugin::getInstance()->getApi()->getClient();
-        $channelId = Plugin::getInstance()->settings->getDefaultChannelId();
+        $channelId = Plugin::getInstance()->settings->getDefaultChannel(true);
         $cart = null;
         if ($cartCookie) {
             $cart = $client->cart($cartCookie)->get()?->getCart();

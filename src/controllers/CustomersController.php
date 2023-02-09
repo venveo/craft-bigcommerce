@@ -76,7 +76,7 @@ class CustomersController extends BigCommerceApiController
         $client = Plugin::getInstance()->getApi()->getClient();
         $request = new CreateCustomerRequest();
         $request->attributes = \Craft::$app->request->getBodyParams();
-        $channelId = Plugin::getInstance()->settings->getDefaultChannelId();
+        $channelId = Plugin::getInstance()->settings->getDefaultChannel(true);
         $request->channel_ids = [$channelId];
 //        $request->customer_group_id = 2;
 

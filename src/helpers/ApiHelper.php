@@ -9,7 +9,7 @@ class ApiHelper
     public static function getApiToken()
     {
         $expiresIn = 60 * 60 * 24 * 30;
-        $channelId = Plugin::getInstance()->settings->getDefaultChannelId();
+        $channelId = Plugin::getInstance()->settings->getDefaultChannel(true);
         return \Craft::$app->cache->getOrSet('bigcommerce.api.token.'.$channelId, function () use ($expiresIn, $channelId) {
             $client = Plugin::getInstance()->getApi()->getClient()->getRestClient();
             $response = $client->post('storefront/api-token', [

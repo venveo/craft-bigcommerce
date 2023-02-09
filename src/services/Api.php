@@ -127,11 +127,11 @@ class Api extends Component
     ): string {
         $settings = Plugin::getInstance()->getSettings();
         $jwtPayload = [
-            'iss' => App::parseEnv($settings->clientId),
+            'iss' => $settings->getClientId(true),
             'iat' => Plugin::getInstance()->getApi()->getServerTime(),
             'jti' => bin2hex(random_bytes(32)),
             'operation' => 'customer_login',
-            'store_hash' => App::parseEnv($settings->storeHash),
+            'store_hash' => $settings->getStoreHash(true),
             'customer_id' => $customerId
         ];
 
@@ -147,7 +147,7 @@ class Api extends Component
             $jwtPayload['channel_id'] = (int)$channelId;
         }
 
-        $secret = App::parseEnv($settings->clientSecret);
+        $secret = $settings->getClientSecret(true);
         return JWT::encode($jwtPayload, $secret, 'HS256');
     }
 
