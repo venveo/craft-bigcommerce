@@ -61,6 +61,7 @@ class ChannelsController extends Controller
             'disconnected' => 'Disconnected',
             'archived' => 'Archived'
         ];
+        $site = null;
         if ($channelId) {
             $channelRequest = $client->channel($channelId);
             $channel = $channelRequest->get()->getChannel()->jsonSerialize();
