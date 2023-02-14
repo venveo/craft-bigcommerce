@@ -20,7 +20,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
  */
-class ChannelsController extends Controller
+class ChannelSiteController extends Controller
 {
     public function beforeAction($action): bool
     {
@@ -33,17 +33,12 @@ class ChannelsController extends Controller
      *
      * @return Response
      */
-    public function actionIndex()
+    public function actionIndex(int $channelId)
     {
-        $connected = false;
-        try {
-            $channels = Plugin::getInstance()->api->getClient()->channels()->getAll()->getChannels();
-            $connected = true;
-        } catch (\Exception $exception) {
-            $channels = [];
-        }
-        return $this->renderTemplate('bigcommerce/channels/_index',
-            ['channels' => $channels, 'connected' => $connected]);
+        $channel = Plugin::getInstance()->api->getClient()->channel($channelId)->get()->getChannel();
+        $site = Plugin::getInstance()->api->getClient()->channel($channelId)->site()->get()->getSite();
+        return $this->renderTemplate('bigcommerce/channels/site/_index.twig',
+            ['site' => $site, 'channel' => $channel]);
     }
 
 
@@ -80,29 +75,26 @@ class ChannelsController extends Controller
 
     public function actionSave()
     {
-        $channelName = $this->request->getRequiredBodyParam('name');
-        $channelId = $this->request->getBodyParam('id');
-        $status = $this->request->getBodyParam('status');
-        if ($channelId) {
-            $channel = Plugin::getInstance()->api->getClient()->channel($channelId)->get()->getChannel();
-        } else {
-            $channel = new Channel();
-            $channel->type = 'storefront';
-            $channel->platform = 'custom';
-            $channel->is_visible = true;
-            $channel->is_listable_from_ui = true;
-        }
-        $channel->name = $channelName;
-        $channel->status = $status;
+        $channelId = $this->request->getRequiredBodyParam('channelId');
+        $url = $this->request->getRequiredBodyParam('url');
+        $client = Plugin::getInstance()->api->getClient();
 
+        $channelRequest = $client->channel($channelId);
+        $channel = $channelRequest->get()->getChannel();
+        $isNew = false;
         try {
-            Plugin::getInstance()->api->getClient()->channels()->create($channel);
+            $site = $channelRequest->site()->get()->getSite();
         } catch (\Exception $exception) {
-            Craft::error($exception->getMessage());
-            Craft::error($exception->getTraceAsString());
-            return $this->asFailure('Failed to save channel. Please check your plan limits.', [],
-                ['channel' => $channel]);
+            $site = new ChannelSite();
+            $site->channel_id = $channel->id;
+            $isNew = true;
         }
-        return $this->asSuccess('Channel saved');
+        $site->url = $url;
+        if ($isNew) {
+            $site = $client->channel($channelId)->site()->create($site)->getSite();
+        } else {
+            $site = $client->channel($channelId)->site()->update($site)->getSite();
+        }
+        return $this->asSuccess('Site saved.');
     }
 }

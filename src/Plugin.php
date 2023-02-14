@@ -298,9 +298,16 @@ class Plugin extends BasePlugin
 
             $event->rules['bigcommerce/webhooks'] = 'bigcommerce/webhooks/edit';
 
+            // Channel management
             $event->rules['bigcommerce/channels'] = 'bigcommerce/channels/index';
             $event->rules['bigcommerce/channels/new'] = 'bigcommerce/channels/edit';
             $event->rules['bigcommerce/channels/<channelId:\d+>'] = 'bigcommerce/channels/edit';
+
+            // Channel site management
+            $event->rules['bigcommerce/channels/<channelId:\d+>/site'] = 'bigcommerce/channel-site/index';
+
+            // Site routes management
+            $event->rules['bigcommerce/channels/<channelId:\d+>/site/routes'] = 'bigcommerce/site-routes/index';
         });
     }
 

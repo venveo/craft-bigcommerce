@@ -1,4 +1,4 @@
-{% extends "_layouts/cp" %}
+{% extends 'bigcommerce/channels/_layout.twig' %}
 {% import '_includes/forms.twig' as forms %}
 {% set fullPageForm = false %}
 
@@ -9,23 +9,13 @@
 {% set title = 'New Channel'|t('bigcommerce') %}
 {% if channel is defined and channel.id %}
     {% set title = 'Edit Channel'|t('bigcommerce') %}
-    {% set tabs = {
-        settings: {
-            label: 'Channel Settings',
-            url: "#settings"
-        },
-        site: {
-            label: 'Site Settings',
-            url: '#site'
-        }
-    } %}
 {% endif %}
 
 {% block content %}
     <div class="tab" id="settings">
         <form method="post">
             {{ csrfInput() }}
-            {{ actionInput('bigcommerce/channels/save-channel') }}
+            {{ actionInput('bigcommerce/channels/save') }}
             {% if channel is defined and channel and channel.id is defined %}
                 {{ hiddenInput('id', channel.id) }}
             {% endif %}
@@ -49,26 +39,4 @@
             {{ forms.submitButton({}) }}
         </form>
     </div>
-    {% if channel is defined and channel.id and site is defined %}
-        <div class="tab hidden" id="site">
-            <form method="post">
-                {{ actionInput('bigcommerce/channels/save-site') }}
-                {{ csrfInput() }}
-                {{ hiddenInput('channelId', channel.id) }}
-                {{ forms.textField({
-                    type: 'url',
-                    required: true,
-                    label: 'Site URL'|t('bigcommerce'),
-                    instructions: 'Enter the URL for the site on this channel.'|t('bigcommerce'),
-                    name: 'url',
-                    value: site.url ?? null
-                }) }}
-                {% set buttonLabel = 'Create Site'|t('bigcommerce') %}
-                {% if site.id is defined and site.id %}
-                    {% set buttonLabel = 'Update Site'|t('bigcommerce') %}
-                {% endif %}
-                {{ forms.submitButton({label: buttonLabel}) }}
-            </form>
-        </div>
-    {% endif %}
 {% endblock %}

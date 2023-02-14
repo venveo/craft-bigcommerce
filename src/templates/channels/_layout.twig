@@ -1,0 +1,26 @@
+{% extends '_layouts/cp' %}
+
+{% set title = title ?? 'Channels'|t('bigcommerce') %}
+
+{% set selectedSubnavItem = 'channels' %}
+
+{% if channel is defined and channel.id %}
+    {% set tabs = {
+        settings: {
+            label: 'Channel Settings',
+            url: url("bigcommerce/channels/#{channel.id}")
+        },
+        site: {
+            label: 'Site Settings',
+            url: url("bigcommerce/channels/#{channel.id}/site")
+        }
+    } %}
+    {% if site is defined and site.id %}
+        {% set tabs = tabs|merge({
+            routes: {
+                label: 'Site Routes',
+                url: url("bigcommerce/channels/#{channel.id}/site/routes")
+            }
+        }) %}
+    {% endif %}
+{% endif %}

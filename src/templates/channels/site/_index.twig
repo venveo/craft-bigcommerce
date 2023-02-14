@@ -1,0 +1,29 @@
+{% extends 'bigcommerce/channels/_layout.twig' %}
+{% set title = 'Channels - Site Settings'|t('bigcommerce') %}
+
+{% import '_includes/forms.twig' as forms %}
+{% set selectedTab = 'site' %}
+{% block content %}
+    {% if site is defined and site.id %}
+        <div class="tab" id="site">
+            <form method="post">
+                {{ actionInput('bigcommerce/channels-site/save') }}
+                {{ csrfInput() }}
+                {{ hiddenInput('channelId', channel.id) }}
+                {{ forms.textField({
+                    type: 'url',
+                    required: true,
+                    label: 'Site URL'|t('bigcommerce'),
+                    instructions: 'Enter the URL for the site on this channel.'|t('bigcommerce'),
+                    name: 'url',
+                    value: site.url ?? null
+                }) }}
+                {% set buttonLabel = 'Create Site'|t('bigcommerce') %}
+                {% if site.id is defined and site.id %}
+                    {% set buttonLabel = 'Update Site'|t('bigcommerce') %}
+                {% endif %}
+                {{ forms.submitButton({label: buttonLabel}) }}
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}
