@@ -1,6 +1,8 @@
-{% extends "bigcommerce/settings/_layout" %}
+{% extends "_layouts/cp" %}
 {% import '_includes/forms.twig' as forms %}
 {% set fullPageForm = false %}
+
+{% set selectedSubnavItem = 'channels' %}
 
 {% do view.registerTranslations('bigcommerce', [
 ]) %}

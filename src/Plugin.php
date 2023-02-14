@@ -346,6 +346,10 @@ class Plugin extends BasePlugin
 
         if ($isConnected) {
             if (Craft::$app->getUser()->getIsAdmin()) {
+                $ret['subnav']['channels'] = [
+                    'label' => Craft::t('bigcommerce', 'Channels'),
+                    'url' => 'bigcommerce/channels',
+                ];
                 $ret['subnav']['webhooks'] = [
                     'label' => Craft::t('bigcommerce', 'Webhooks'),
                     'url' => 'bigcommerce/webhooks',

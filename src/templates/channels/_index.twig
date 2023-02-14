@@ -1,5 +1,9 @@
-{% extends 'bigcommerce/settings/_layout' %}
+{% extends '_layouts/cp' %}
 {% set title = 'Channels'|t('bigcommerce') %}
+
+{% import '_includes/forms.twig' as forms %}
+{% set selectedSubnavItem = 'channels' %}
+
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 
