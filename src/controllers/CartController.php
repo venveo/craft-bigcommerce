@@ -9,6 +9,9 @@ namespace venveo\bigcommerce\controllers;
 
 use BigCommerce\ApiV3\ResourceModels\Cart\CartItem;
 use BigCommerce\ApiV3\ResponseModels\Cart\CartRedirectUrlsResponse;
+use craft\helpers\ArrayHelper;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\RequestOptions;
 use venveo\bigcommerce\api\operations\Cart;
 use venveo\bigcommerce\api\operations\Customer;
 use venveo\bigcommerce\base\BigCommerceApiController;
@@ -59,18 +62,48 @@ class CartController extends BigCommerceApiController
         $cart = Cart::getCart(true);
         $itemId = $this->request->getRequiredBodyParam('id');
         $itemData = $this->request->getRequiredBodyParam('item');
+        if (!isset($cart, $cart->line_items, $cart->line_items->physical_items)) {
+            return $this->asFailure('You have no items in your cart.');
+        }
+        /** @var  $lineItem */
+        $lineItem = ArrayHelper::firstWhere($cart->line_items->physical_items, 'id', $itemId);
+        if (!$lineItem) {
+            return $this->asFailure('Item not found in your cart.');
+        }
+
         try {
-            Plugin::getInstance()->api->getClient()->cart($cart->id)->item($itemId)->update($itemData);
-            return $this->asSuccess('Item updated successfully');
-        } catch (\Exception $exception) {
+            // Only quantity and list price are supported right now, so obviously we only want to allow updating quantity
+            $quantity = $itemData['quantity'] ?? null;
+            if ($quantity) {
+                $lineItem->quantity = $quantity;
+                $resource = Plugin::getInstance()->api->getClient()->cart($cart->id)->item($itemId);
+                $response = $resource->getClient()->getRestClient()->put(
+                    $resource->singleResourceUrl(),
+                    [
+                        RequestOptions::JSON => [
+                            'line_item' => $lineItem
+                        ],
+                        RequestOptions::QUERY => [],
+
+
+                    ]
+                );
+                return $this->asSuccess('Item updated successfully');
+            } else {
+                return $this->asFailure('Please specify a quantity');
+            }
+        } catch (ClientException $exception) {
+            $contents = $exception->getResponse()->getBody()->getContents();
             return $this->asFailure('Failed to update line item');
         }
     }
 
-    public function actionCheckout() {
+    public function actionCheckout()
+    {
         $cart = Cart::getCart(true);
         $customerId = Customer::getCurrentCustomerId();
-        $redirectUrlsResponse = new CartRedirectUrlsResponse(Plugin::getInstance()->api->getClient()->getRestClient()->post(sprintf('carts/%s/redirect_urls', $cart->id)));
+        $redirectUrlsResponse = new CartRedirectUrlsResponse(Plugin::getInstance()->api->getClient()->getRestClient()->post(sprintf('carts/%s/redirect_urls',
+            $cart->id)));
         $checkoutUrl = $redirectUrlsResponse->getCartRedirectUrls()->checkout_url;
         // TODO: Should a customer be allowed to take over another customer's cart?
 //        $cart->customer_id === $customerId
