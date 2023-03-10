@@ -101,10 +101,18 @@ class CartController extends BigCommerceApiController
     public function actionCheckout()
     {
         $cart = Cart::getCart(true);
+        $checkoutDomainOverride = Plugin::getInstance()->settings->getCheckoutDomainOverride(true);
         $customerId = Customer::getCurrentCustomerId();
         $redirectUrlsResponse = new CartRedirectUrlsResponse(Plugin::getInstance()->api->getClient()->getRestClient()->post(sprintf('carts/%s/redirect_urls',
             $cart->id)));
-        $checkoutUrl = $redirectUrlsResponse->getCartRedirectUrls()->checkout_url;
+        $redirectUrls = $redirectUrlsResponse->getCartRedirectUrls();
+        $checkoutUrl = $redirectUrls->checkout_url;
+
+        // TODO: Barf. Probably better to throw an event and handle this with site business-logic.
+        if ($checkoutDomainOverride) {
+            $checkoutUrl = \venveo\bigcommerce\helpers\UrlHelper::changeUrlHost($checkoutUrl, $checkoutDomainOverride);
+        }
+
         // TODO: Should a customer be allowed to take over another customer's cart?
 //        $cart->customer_id === $customerId
         if ($customerId) {

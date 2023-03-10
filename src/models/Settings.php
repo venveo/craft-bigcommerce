@@ -25,6 +25,8 @@ class Settings extends Model
     private int|string|null $_defaultChannel = null;
     private ?string $_webhookSecret = null;
 
+    private ?string $_checkoutDomainOverride = null;
+
     public string $uriFormat = '';
     public string $template = '';
     private mixed $_productFieldLayout;
@@ -125,6 +127,15 @@ class Settings extends Model
         $this->_webhookSecret = $webhookSecret;
     }
 
+    public function getCheckoutDomainOverride(bool $parse = false): ?string
+    {
+        return ($parse ? App::parseEnv($this->_checkoutDomainOverride) : $this->_checkoutDomainOverride);
+    }
+
+    public function setCheckoutDomainOverride(?string $checkoutDomainOverride): void
+    {
+        $this->_checkoutDomainOverride = $checkoutDomainOverride;
+    }
 
     public function attributes()
     {
@@ -135,6 +146,7 @@ class Settings extends Model
         $attributes[] = 'storeHash';
         $attributes[] = 'defaultChannel';
         $attributes[] = 'webhookSecret';
+        $attributes[] = 'checkoutDomainOverride';
         return $attributes;
     }
 
@@ -151,6 +163,7 @@ class Settings extends Model
             'uriFormat' => Craft::t('bigcommerce', 'Product URI format'),
             'defaultChannel' => Craft::t('bigcommerce', 'Default Channel'),
             'webhookSecret' => Craft::t('bigcommerce', 'Webhook Secret'),
+            'checkoutDomainOverride' => Craft::t('bigcommerce', 'Checkout Domain Override'),
             'template' => Craft::t('bigcommerce', 'Product Template'),
         ];
     }
@@ -167,6 +180,7 @@ class Settings extends Model
                     'storeHash' => fn() => $this->getStoreHash(),
                     'webhookSecret' => fn() => $this->getWebhookSecret(),
                     'defaultChannel' => fn() => $this->getDefaultChannel(),
+                    'checkoutDomainOverride' => fn() => $this->getCheckoutDomainOverride(),
                 ],
             ],
         ];

@@ -121,6 +121,18 @@
             suggestEnvVars: true,
             suggestAliases: true,
         }) }}
+
+
+        {{ forms.autosuggestField({
+            label: 'Checkout Domain Override'|t('bigcommerce'),
+            instructions: "Enter a domain to use for your checkout, otherwise the configured domain will be used. Do not include protocal or slashes - only the hostname."|t('bigcommerce'),
+            name: 'settings[checkoutDomainOverride]',
+            required: false,
+            value: settings.checkoutDomainOverride,
+            errors: settings.getErrors('checkoutDomainOverride'),
+            suggestEnvVars: true,
+            suggestAliases: true,
+        }) }}
 {#
 When we're ready for multi-channel support:
 
