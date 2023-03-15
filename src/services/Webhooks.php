@@ -61,7 +61,7 @@ class Webhooks extends Component
         return UrlHelper::actionUrl($path);
     }
 
-    public function createRequiredWebhooks(?string $baseUrlOverride): bool
+    public function createRequiredWebhooks(?string $baseUrlOverride = null): bool
     {
         $destination = $this->getWebhookUrl($baseUrlOverride);
         $secret = Plugin::getInstance()->settings->getWebhookSecret(true);
