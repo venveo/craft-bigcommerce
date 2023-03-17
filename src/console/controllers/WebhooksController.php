@@ -18,10 +18,10 @@ class WebhooksController extends Controller
         $service = Plugin::getInstance()->webhooks;
         $webhooks = $service->getAllWebhooks();
         // If we don't have all webhooks needed for the current environment show the create button
-        $disabledWebhooks = $webhooks->where('is_enabled', '=', false);
+        $disabledWebhooks = $webhooks->where('is_active', '=', false);
         $disabledWebhooks->each(function ($webhook) use ($service) {
             $service->deleteWebhookById($webhook['id']);
-            $this->stdout('Deleted inactive webhook: '. $webhook['id']);
+            $this->stdout('Deleted inactive webhook: '. $webhook['id'] . PHP_EOL);
         });
         $service->createRequiredWebhooks();
         return ExitCode::OK;
